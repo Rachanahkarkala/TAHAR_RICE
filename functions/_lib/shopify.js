@@ -334,6 +334,7 @@ export function serializeCart(cart) {
 }
 
 // Checkout URL stays server-side until the redirect.
+
 export async function getShopifyCheckoutUrl(context, cartId) {
   const cart = await getShopifyCart(context, cartId);
 
@@ -341,5 +342,23 @@ export async function getShopifyCheckoutUrl(context, cartId) {
     throw new Error("Your cart is empty.");
   }
 
-  return cart.checkoutUrl;
+  if (!cart.checkoutUrl) {
+    throw new Error("Shopify did not return a checkout URL.");
+  }
+
+  const checkoutUrl = new URL(cart.checkoutUrl);
+
+  if (
+    checkoutUrl.protocol !== "https:" ||
+    !checkoutUrl.hostname.endsWith(".myshopify.com")
+  ) {
+    throw new Error("Invalid Shopify checkout URL.");
+  }
+
+  checkoutUrl.searchParams.set(
+    "channel",
+    "headless-storefronts"
+  );
+
+  return checkoutUrl.toString();
 }
