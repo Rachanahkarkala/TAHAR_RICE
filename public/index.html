@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Tahar — Your culinary companion. Discover a range of Indian basmati rice for everyday meals and special gatherings.">
+<meta name="theme-color" content="#3E4938">
+<title>Tahar — Your Culinary Companion</title>
+<link rel="preload" href="/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/cormorant-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<script src="/products.js"></script>
+<script src="/shopify.js"></script>
+<script src="/store.js"></script>
+<script src="/vendor/alpine.min.js" defer></script>
+</head>
+<body x-data="taharStore()" x-init="init()">
+<div class="topline"><i></i>Tahar — Your culinary companion</div>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="/" aria-label="Tahar home"><img class="brand-logo" src="/images/tahar-logo-clear.png" alt="Tahar — Your culinary companion" width="200" height="171"></a>
+    <nav class="nav" :class="{open:menuOpen}" aria-label="Main">
+      <a href="/" aria-current="page">Home</a><a href="./shop.html">Our Rice</a><a href="#story">Our Story</a><a href="#faqs">FAQs</a><a href="#contact">Contact</a>
+    </nav>
+    <div class="header-actions">
+      <a class="icon-button" href="./shop.html" aria-label="Search our rice"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></a>
+      <button class="icon-button" @click="openCart()" aria-label="Open basket"><svg viewBox="0 0 24 24"><path d="M4 8h16l-1.4 12H5.4L4 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg><span class="cart-count" x-show="cartCount > 0" x-text="cartCount"></span></button>
+      <button class="icon-button menu-toggle" @click="menuOpen=!menuOpen" :aria-expanded="menuOpen" aria-label="Toggle menu"><svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+    <div class="hero-grain" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <h1 class="display">Every grain<br><em>has a story.</em></h1>
+      <p class="lead">From familiar everyday meals to the occasions worth gathering for, bring the warmth of good basmati rice to your table.</p>
+      <div class="hero-actions"><a class="button button--light" href="./shop.html">Explore our rice <svg class="arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="text-link" href="#story">Discover Tahar</a></div>
+      <div class="hero-facts">
+        <div class="hero-fact"><strong><span class="hero-count-number" x-text="products.length"></span><small class="hero-count-note"><i>and counting</i></small></strong><span>Basmati varieties</span></div>
+        <div class="hero-fact"><strong>1 · 5 · 30</strong><span>Kilo pack sizes</span></div>
+      </div>
+    </div>
+    <div class="hero-art">
+      <div class="arch"><div class="arch-inner" data-hero-slider><img class="hero-slide is-active" src="/images/rice-1.webp" alt="Steam rising from a pot as a hand holds freshly cooked basmati rice" width="640" height="960" fetchpriority="high" draggable="false"><img class="hero-slide" src="/images/rice-2.webp" alt="A hand rinsing long-grain basmati rice in a steel bowl of water" width="736" height="1104" draggable="false"><img class="hero-slide" src="/images/rice-3.webp" alt="Basmati grains falling onto a heap of rice against a dark backdrop" width="657" height="1000" draggable="false"><img class="hero-slide" src="/images/rice-4.webp" alt="Basmati rice with cardamom, bay leaf, cinnamon and star anise" width="650" height="975" draggable="false"><img class="hero-slide" src="/images/rice-5.webp" alt="Soft cooked rice being folded with a wooden paddle" width="735" height="1103" draggable="false"></div></div>
+      <span class="hero-note" aria-hidden="true"></span>
+    </div>
+  </div>
+</section>
+
+<div class="strip" aria-label="Tahar rice varieties">
+  <div class="strip-track">
+    <template x-for="(p,i) in loopProducts" :key="i"><span class="strip-item" x-text="p.category"></span></template>
+  </div>
+</div>
+
+<section class="section" id="story">
+  <div class="container intro-grid">
+    <div class="intro-visual" data-reveal><img src="/images/tahar-logo-clear.png" alt="Tahar logo"><p>“Your culinary companion”</p></div>
+    <div class="intro-copy" data-reveal>
+      <h2 class="display">Why <em>Tahar?</em></h2>
+      <p class="lead">Because every dish deserves the right rice. Tahar brings together a range of basmati varieties for the way you cook, from long, slender grains for fragrant pulao and indulgent dum biryani to dependable favourites for everyday meals.</p>
+      <p class="lead">With distinctive aroma, carefully aged grains across selected varieties, and pack options for different kitchens, there is a Tahar rice for the moments you gather around the table.</p>
+      <a class="text-link" href="./shop.html">Explore our rice <svg class="arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<section class="collection section">
+  <div class="container">
+    <div class="section-head" data-reveal><div><div class="eyebrow">Find your everyday favourite</div><h2 class="display">The Tahar <em>collection.</em></h2></div><a class="text-link" href="./shop.html">View all rice <svg class="arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    <div class="product-grid">
+      <template x-for="product in featuredProducts" :key="product.id">
+        <article class="product-card">
+          <a class="product-visual" :href="'/product.html?id='+product.id" :aria-label="'View '+product.name">
+            <template x-if="product.image"><img :src="product.image" :alt="product.name" loading="lazy"></template>
+            <template x-if="!product.image"><div class="no-image">Rozanna<small>Product image coming soon</small></div></template>
+          </a>
+          <div class="product-info">
+            <a :href="'/product.html?id='+product.id"><h3 x-text="product.name"></h3></a>
+            <div class="product-price"><span x-text="money(priceFor(product))"></span><small x-text="'/ '+selectedSizes[product.id]"></small></div>
+            <div class="size-row" role="group" :aria-label="'Pack size for '+product.name"><template x-for="s in product.sizes" :key="s.size"><button type="button" class="size-pill" :class="{active:selectedSizes[product.id]===s.size}" :aria-pressed="selectedSizes[product.id]===s.size" @click="selectedSizes[product.id]=s.size" x-text="s.size"></button></template></div>
+            <button class="add-button" @click="add(product,selectedSizes[product.id])"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add to basket</button>
+          </div>
+        </article>
+      </template>
+    </div>
+  </div>
+</section>
+
+<section class="interlude on-dark">
+  <div class="interlude-image" role="img" aria-label="A warm Indian rice meal"></div>
+  <div class="interlude-copy" data-reveal><div class="eyebrow">For the everyday and the extraordinary</div><h2 class="display">The heart of a meal is often the <em>simplest thing.</em></h2><p class="lead">A pot of rice, a favourite recipe, a table with room for one more. The best food memories are made together.</p><a class="text-link" href="./shop.html">Find your rice <svg class="arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+</section>
+
+<section class="faq-section section" id="faqs">
+  <div class="container">
+    <div class="faq-heading" data-reveal>
+      <div class="eyebrow">A little know-how</div>
+      <h2 class="display">Good rice, <em>good to know.</em></h2>
+      <p class="faq-intro">A few helpful answers to make every pot of Tahar basmati a little better.</p>
+    </div>
+
+    <div class="faq-list" data-reveal>
+      <details class="faq-item">
+        <summary><span class="faq-number">01</span><span class="faq-question">What makes basmati rice different from other rice?</span><span class="faq-chevron" aria-hidden="true"></span></summary>
+        <div class="faq-answer"><p>Basmati is known for its distinctive aroma, slender grains and characteristic length when cooked. Its delicate fragrance and fluffy, separate texture make it a favourite for biryani, pulao and everyday meals.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary><span class="faq-number">02</span><span class="faq-question">Should I wash basmati rice before cooking?</span><span class="faq-chevron" aria-hidden="true"></span></summary>
+        <div class="faq-answer"><p>Yes. Rinse the rice gently in cool water two or three times, until the water looks clearer. This removes excess surface starch and helps the cooked grains stay light and separate.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary><span class="faq-number">03</span><span class="faq-question">Do I need to soak basmati rice?</span><span class="faq-chevron" aria-hidden="true"></span></summary>
+        <div class="faq-answer"><p>Soaking is helpful, especially for biryani and other dishes where you want long, well-defined grains. After rinsing, soak for around 20–30 minutes, then drain. For everyday cooking, follow the method recommended on your pack.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary><span class="faq-number">04</span><span class="faq-question">What is the best water-to-rice ratio?</span><span class="faq-chevron" aria-hidden="true"></span></summary>
+        <div class="faq-answer"><p>It depends on the rice variety, whether it has been soaked, and the cooking method. Start with the instructions on your Tahar pack and adjust slightly for your preferred texture and cookware.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary><span class="faq-number">05</span><span class="faq-question">Which basmati is best for biryani?</span><span class="faq-chevron" aria-hidden="true"></span></summary>
+        <div class="faq-answer"><p>Choose a long-grain variety that holds its shape during cooking. Tahar Traditional Basmati and Tahar Premium Basmati are described as suitable for dum cooking and biryani-style dishes.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary><span class="faq-number">06</span><span class="faq-question">How should I store basmati rice?</span><span class="faq-chevron" aria-hidden="true"></span></summary>
+        <div class="faq-answer"><p>Keep rice in an airtight container in a cool, dry place, away from moisture, heat and direct sunlight. Always use a clean, dry scoop and close the pack or container after each use.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary><span class="faq-number">07</span><span class="faq-question">Why should cooked basmati rice rest before serving?</span><span class="faq-chevron" aria-hidden="true"></span></summary>
+        <div class="faq-answer"><p>A short resting time after cooking lets the moisture settle through the grains. Leave the rice covered for about 5–10 minutes, then gently fluff with a fork before serving.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary><span class="faq-number">08</span><span class="faq-question">How do I choose the right Tahar rice for my kitchen?</span><span class="faq-chevron" aria-hidden="true"></span></summary>
+        <div class="faq-answer"><p>Think about the dishes you cook most often, the texture you enjoy and the pack size that suits your household. Explore the Tahar range to find a variety for everyday meals, pulao, biryani and family gatherings.</p></div>
+      </details>
+    </div>
+
+    <div class="faq-contact" data-reveal>
+      <p class="faq-contact-title">Still have a question?</p>
+      <p>For more enquiries, reach out to the Tahar team.</p>
+      <div class="faq-contact-links">
+        <a href="mailto:customercare@jpsglobalrice.com">customercare@jpsglobalrice.com</a>
+        <span aria-hidden="true">·</span>
+        <a href="tel:+919992910964 ">+91 99929 10964</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="closing">
+  <h2 class="display">Bring Tahar<br><em>to your table.</em></h2>
+  <a class="button button--light" href="./shop.html">Explore the collection <svg class="arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</section>
+</main>
+
+<footer class="footer" id="contact">
+  <div class="container footer-main">
+    <div class="footer-brand"><a class="brand" href="/"><span class="brand-word">Tahar</span></a><p>Your culinary companion. A range of basmati rice for the meals and moments that bring us together.</p></div>
+    <div class="footer-col"><h4>Explore</h4><div class="footer-links"><a href="./shop.html">Our rice</a><a href="/#story">Our story</a><a href="./shop.html">Shop all</a></div></div>
+    <div class="footer-col footer-col--contact"><h4>Contact</h4><div class="footer-social-links">
+      <a class="footer-social-link" href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" class="icon-fill"/></svg>
+      </a>
+      <a class="footer-social-link" href="mailto:rachanahkarkala@gmail.com" aria-label="Email">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3.5 6 8.5 7 8.5-7"/></svg>
+      </a>
+      <a class="footer-social-link" href="tel:7483114101" aria-label="Call 7483114101">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5 4.5 5c-.8.5-.9 1.6-.6 2.5 2 5.9 6.7 10.6 12.6 12.6.9.3 2 .2 2.5-.6l1.5-2.5-4.2-3-2 2a14.2 14.2 0 0 1-6.4-6.4l2-2-2.9-4.1Z"/></svg>
+      </a>
+    </div></div>
+  </div>
+  <div class="container footer-bottom"><span>© <span x-text="new Date().getFullYear()"></span> Tahar. All rights reserved.</span><span>Your culinary companion</span></div>
+</footer>
+<div class="cart-overlay" :class="{open:cartOpen}" @click.self="cartOpen=false" @keydown.escape.window="cartOpen=false" :aria-hidden="!cartOpen">
+  <aside class="cart-drawer" role="dialog" aria-modal="true" aria-label="Your basket">
+    <div class="cart-head"><div><div class="eyebrow">Your selection</div><h2>Your basket</h2></div><button class="close-cart" @click="cartOpen=false" aria-label="Close basket">×</button></div>
+    <div class="cart-items">
+      <template x-if="cart.length===0"><div class="empty-cart"><h3>A little room<br>for something good.</h3><p>Your basket is waiting for its first pick.</p><a class="button" href="./shop.html" @click="cartOpen=false">Explore our rice <svg class="arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></template>
+      <template x-for="item in cart" :key="item.key"><div class="cart-row"><div class="cart-thumb"><template x-if="item.image"><img :src="item.image" :alt="item.name"></template></div><div><h4 x-text="item.name"></h4><small x-text="item.size"></small><div class="cart-qty"><button @click="changeQty(item.key,-1)" aria-label="Decrease quantity">−</button><span x-text="item.qty"></span><button @click="changeQty(item.key,1)" aria-label="Increase quantity">+</button><button class="remove" @click="removeItem(item.key)">Remove</button></div></div><strong x-text="money(item.price*item.qty)"></strong></div></template>
+    </div>
+    <div class="cart-foot" x-show="cart.length"><div class="subtotal"><span>Subtotal</span><strong x-text="money(subtotal)"></strong></div><p>Shipping and checkout will be enabled when the store is connected to Shopify.</p><button class="button checkout-disabled" disabled>Checkout — coming soon</button></div>
+  </aside>
+</div>
+<div class="toast" :class="{show:toast}" x-text="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+  var faqItems = document.querySelectorAll('.faq-item');
+  faqItems.forEach(function(item){
+    item.addEventListener('toggle', function(){
+      if (!item.open) return;
+      faqItems.forEach(function(other){
+        if (other !== item) other.open = false;
+      });
+    });
+  });
+})();
+</script>
+<script>
+(function(){
+  var root=document.querySelector('[data-hero-slider]');if(!root)return;
+  var slides=[].slice.call(root.querySelectorAll('.hero-slide'));
+  slides.forEach(function(s){if(s.decode)s.decode().catch(function(){})});
+  var cur=0,timer=null,DELAY=2000,reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function go(n){
+    if(n===cur)return;
+    slides.forEach(function(s){s.classList.remove('is-prev')});
+    slides[cur].classList.remove('is-active');slides[cur].classList.add('is-prev');
+    cur=n;
+    slides[cur].classList.add('is-active');
+  }
+  function next(){go((cur+1)%slides.length)}
+  function start(){stop();if(!reduce)timer=setInterval(next,DELAY)}
+  function stop(){clearInterval(timer);timer=null}
+  root.addEventListener('mouseenter',stop);
+  root.addEventListener('mouseleave',start);
+  document.addEventListener('visibilitychange',function(){document.hidden?stop():start()});
+  var sx=null;
+  root.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});
+  root.addEventListener('touchend',function(e){if(sx===null)return;var dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>40){go((cur+(dx<0?1:slides.length-1))%slides.length);start()}});
+  start();
+})();
+</script>
+</body>
+</html>

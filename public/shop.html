@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Explore Tahar's range of basmati rice varieties in 1 kg, 5 kg and 30 kg packs.">
+<meta name="theme-color" content="#3E4938">
+<title>Our Rice — Tahar</title>
+<link rel="preload" href="/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/cormorant-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<script src="/products.js"></script>
+<script src="/shopify.js"></script>
+<script src="/store.js"></script>
+<script src="/vendor/alpine.min.js" defer></script>
+</head>
+<body x-data="shopPage()" x-init="init()">
+<div class="topline"><i></i>Tahar — Your culinary companion</div>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="/" aria-label="Tahar home"><img class="brand-logo" src="/images/tahar-logo-clear.png" alt="Tahar — Your culinary companion" width="200" height="171"></a>
+    <nav class="nav" :class="{open:menuOpen}" aria-label="Main">
+      <a href="/">Home</a><a href="/shop.html" aria-current="page">Our Rice</a><a href="/#story">Our Story</a><a href="/#contact">Contact</a>
+    </nav>
+    <div class="header-actions">
+      <a class="icon-button" href="/shop.html" aria-label="Search our rice"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></a>
+      <button class="icon-button" @click="openCart()" aria-label="Open basket"><svg viewBox="0 0 24 24"><path d="M4 8h16l-1.4 12H5.4L4 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg><span class="cart-count" x-show="cartCount > 0" x-text="cartCount"></span></button>
+      <button class="icon-button menu-toggle" @click="menuOpen=!menuOpen" :aria-expanded="menuOpen" aria-label="Toggle menu"><svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<section class="page-hero"><div class="container shop-intro"><div><div class="eyebrow">The Tahar collection</div><h1 class="display">Find your <em>favourite.</em></h1></div><p>Explore a range of basmati rice varieties for everyday cooking, family favourites and meals worth sharing.</p></div></section>
+<main class="container shop-main">
+  <div class="shop-layout">
+    <aside class="filters" aria-label="Filters">
+      <div class="filter-title">Search rice</div>
+      <input class="search-input" type="search" placeholder="Find a variety…" aria-label="Search rice varieties" x-model.debounce.150ms="query">
+      <div class="filter-title">Rice variety</div>
+      <div class="filter-list"><label><input type="radio" name="variety" value="all" x-model="categoryFilter"> All varieties</label><template x-for="p in products" :key="p.id"><label><input type="radio" name="variety" :value="p.id" x-model="categoryFilter"><span x-text="p.category"></span></label></template></div>
+      <div class="filter-title">Pack size</div>
+      <div class="filter-list"><label><input type="radio" name="size" value="all" :checked="sizeFilter === 'all'" @change="applySizeFilter('all')"> All sizes</label><label><input type="radio" name="size" value="1 kg" :checked="sizeFilter === '1 kg'" @change="applySizeFilter('1 kg')"> 1 kg</label><label><input type="radio" name="size" value="5 kg" :checked="sizeFilter === '5 kg'" @change="applySizeFilter('5 kg')"> 5 kg</label><label><input type="radio" name="size" value="30 kg" :checked="sizeFilter === '30 kg'" @change="applySizeFilter('30 kg')"> 30 kg</label></div>
+    </aside>
+    <section>
+      <div class="shop-toolbar"><span class="result-count" x-text="filtered.length+' varieties'+(sizeFilter === 'all' ? '' : ' · '+sizeFilter+' packs')"></span><select class="sort-select" x-model="sort" aria-label="Sort products"><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option></select></div>
+      <div class="shop-grid">
+        <template x-for="product in filtered" :key="product.id">
+        <article class="product-card">
+          <a class="product-visual" :href="'/product.html?id='+product.id" :aria-label="'View '+product.name">
+            <template x-if="product.image"><img :src="product.image" :alt="product.name" loading="lazy"></template>
+            <template x-if="!product.image"><div class="no-image">Rozanna<small>Product image coming soon</small></div></template>
+          </a>
+          <div class="product-info">
+            <a :href="'/product.html?id='+product.id"><h3 x-text="product.name"></h3></a>
+            <div class="product-price"><span x-text="money(priceFor(product))"></span><small x-text="'/ '+selectedSizes[product.id]"></small></div>
+            <div class="size-row" role="group" :aria-label="'Pack size for '+product.name"><template x-for="s in product.sizes.filter(s => sizeFilter === 'all' || s.size === sizeFilter)" :key="s.size"><button type="button" class="size-pill" :class="{active:selectedSizes[product.id]===s.size}" :aria-pressed="selectedSizes[product.id]===s.size" @click="selectedSizes[product.id]=s.size" x-text="s.size"></button></template></div>
+            <button class="add-button" @click="add(product,selectedSizes[product.id])"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add to basket</button>
+          </div>
+        </article>
+        </template>
+        <template x-if="filtered.length===0"><div class="empty-results">No rice varieties match that search. Try another name or pack size.</div></template>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="footer" id="contact">
+  <div class="container footer-main">
+    <div class="footer-brand"><a class="brand" href="/"><span class="brand-word">Tahar</span></a><p>Your culinary companion. A range of basmati rice for the meals and moments that bring us together.</p></div>
+    <div class="footer-col"><h4>Explore</h4><div class="footer-links"><a href="./shop.html">Our rice</a><a href="/#story">Our story</a><a href="./shop.html">Shop all</a></div></div>
+    <div class="footer-col footer-col--contact"><h4>Contact</h4><div class="footer-social-links">
+      <a class="footer-social-link" href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" class="icon-fill"/></svg>
+      </a>
+      <a class="footer-social-link" href="mailto:rachanahkarkala@gmail.com" aria-label="Email">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3.5 6 8.5 7 8.5-7"/></svg>
+      </a>
+      <a class="footer-social-link" href="tel:7483114101" aria-label="Call 7483114101">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5 4.5 5c-.8.5-.9 1.6-.6 2.5 2 5.9 6.7 10.6 12.6 12.6.9.3 2 .2 2.5-.6l1.5-2.5-4.2-3-2 2a14.2 14.2 0 0 1-6.4-6.4l2-2-2.9-4.1Z"/></svg>
+      </a>
+    </div></div>
+  </div>
+  <div class="container footer-bottom"><span>© <span x-text="new Date().getFullYear()"></span> Tahar. All rights reserved.</span><span>Your culinary companion</span></div>
+</footer>
+<div class="cart-overlay" :class="{open:cartOpen}" @click.self="cartOpen=false" @keydown.escape.window="cartOpen=false" :aria-hidden="!cartOpen">
+  <aside class="cart-drawer" role="dialog" aria-modal="true" aria-label="Your basket">
+    <div class="cart-head"><div><div class="eyebrow">Your selection</div><h2>Your basket</h2></div><button class="close-cart" @click="cartOpen=false" aria-label="Close basket">×</button></div>
+    <div class="cart-items">
+      <template x-if="cart.length===0"><div class="empty-cart"><h3>A little room<br>for something good.</h3><p>Your basket is waiting for its first pick.</p><a class="button" href="/shop.html" @click="cartOpen=false">Explore our rice <svg class="arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></template>
+      <template x-for="item in cart" :key="item.key"><div class="cart-row"><div class="cart-thumb"><template x-if="item.image"><img :src="item.image" :alt="item.name"></template></div><div><h4 x-text="item.name"></h4><small x-text="item.size"></small><div class="cart-qty"><button @click="changeQty(item.key,-1)" aria-label="Decrease quantity">−</button><span x-text="item.qty"></span><button @click="changeQty(item.key,1)" aria-label="Increase quantity">+</button><button class="remove" @click="removeItem(item.key)">Remove</button></div></div><strong x-text="money(item.price*item.qty)"></strong></div></template>
+    </div>
+    <div class="cart-foot" x-show="cart.length"><div class="subtotal"><span>Subtotal</span><strong x-text="money(subtotal)"></strong></div><p>Shipping and checkout will be enabled when the store is connected to Shopify.</p><button class="button checkout-disabled" disabled>Checkout — coming soon</button></div>
+  </aside>
+</div>
+<div class="toast" :class="{show:toast}" x-text="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
