@@ -89,7 +89,26 @@
       <template x-if="cart.length===0"><div class="empty-cart"><h3>A little room<br>for something good.</h3><p>Your basket is waiting for its first pick.</p><a class="button" href="/shop.html" @click="cartOpen=false">Explore our rice <svg class="arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></template>
       <template x-for="item in cart" :key="item.key"><div class="cart-row"><div class="cart-thumb"><template x-if="item.image"><img :src="item.image" :alt="item.name"></template></div><div><h4 x-text="item.name"></h4><small x-text="item.size"></small><div class="cart-qty"><button @click="changeQty(item.key,-1)" aria-label="Decrease quantity">−</button><span x-text="item.qty"></span><button @click="changeQty(item.key,1)" aria-label="Increase quantity">+</button><button class="remove" @click="removeItem(item.key)">Remove</button></div></div><strong x-text="money(item.price*item.qty)"></strong></div></template>
     </div>
-    <div class="cart-foot" x-show="cart.length"><div class="subtotal"><span>Subtotal</span><strong x-text="money(subtotal)"></strong></div><p>Shipping and checkout will be enabled when the store is connected to Shopify.</p><button class="button checkout-disabled" disabled>Checkout — coming soon</button></div>
+    <div class="cart-foot" x-show="cart.length">
+  <div class="subtotal">
+    <span>Subtotal</span>
+    <strong x-text="money(subtotal)"></strong>
+  </div>
+
+  <p>You can review delivery and payment options securely at checkout.</p>
+
+  <button
+    class="button checkout-button"
+    type="button"
+    @click="checkout()"
+    :disabled="!shopifyCartReady || cartBusy || checkoutBusy"
+    :aria-busy="checkoutBusy"
+  >
+    <span
+      x-text="checkoutBusy ? 'Opening secure checkout…' : 'Proceed to checkout'"
+    ></span>
+  </button>
+</div>
   </aside>
 </div>
 <div class="toast" :class="{show:toast}" x-text="toast" role="status" aria-live="polite"></div>

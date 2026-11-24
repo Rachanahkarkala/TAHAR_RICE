@@ -69,7 +69,7 @@ function createTaharStore() {
     shopifyCartId: null,
     shopifyCartReady: false,
     cartBusy: false,
-
+    checkoutBusy: false,
 
     // ========================================
     // CART COMPUTED VALUES
@@ -405,6 +405,28 @@ applyShopifyCart(remoteCart) {
       this.cartOpen = true;
       this.menuOpen = false;
     },
+
+
+
+async checkout() {
+  if (!this.shopifyCartReady) {
+    this.notify("Your basket is still connecting. Please try again.");
+    return;
+  }
+
+  if (!this.cart.length) {
+    this.notify("Your basket is empty.");
+    return;
+  }
+
+  if (this.cartBusy || this.checkoutBusy) return;
+
+  this.checkoutBusy = true;
+
+  // Cloudflare retrieves the secret cart ID server-side
+  // and redirects the customer to Shopify Checkout.
+  window.location.assign("/api/cart/checkout");
+},
 
 
     // ========================================

@@ -489,3 +489,13 @@ img{display:block;max-width:100%}
         transform: scale(1.12);
     }
 }
+
+.checkout-button {
+  width: 100%;
+}
+
+.checkout-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
