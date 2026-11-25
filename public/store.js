@@ -71,6 +71,11 @@ function createTaharStore() {
     cartBusy: false,
     checkoutBusy: false,
 
+    // Live stock availability refresh.
+    availabilityRefreshTimer: null,
+    availabilityRefreshHandler: null,
+    availabilityRefreshInFlight: false,
+
     // ========================================
     // CART COMPUTED VALUES
     // ========================================
@@ -138,14 +143,19 @@ function createTaharStore() {
         if (!product.sizes || !product.sizes.length) return;
 
         var current = this.selectedSizes[product.id];
-
-        var exists = product.sizes.some(function (size) {
+        var currentVariant = product.sizes.find(function (size) {
           return size.size === current;
         });
 
-        if (!exists) {
+        // Keep the current selection when it is available.
+        // Otherwise choose the first available pack size.
+        if (!currentVariant || currentVariant.availableForSale !== true) {
+          var firstAvailable = product.sizes.find(function (size) {
+            return size.availableForSale === true;
+          });
+
           this.selectedSizes[product.id] =
-            product.sizes[0].size;
+            (firstAvailable || product.sizes[0]).size;
         }
       });
     },
@@ -186,6 +196,7 @@ function createTaharStore() {
         this.shopifyReady = true;
 
         this.setDefaultSelections();
+        this.startAvailabilityRefresh();
 
         console.info(
           "Tahar catalogue synced with Shopify:",
@@ -210,6 +221,115 @@ function createTaharStore() {
 
       } finally {
         this.productsLoading = false;
+      }
+    },
+
+
+    // ========================================
+    // LIVE SHOPIFY STOCK AVAILABILITY
+    // ========================================
+
+    isAvailable(product, size) {
+      var variant = product && product.sizes && product.sizes.find(function (item) {
+        return item.size === size;
+      });
+
+      return Boolean(variant && variant.availableForSale === true);
+    },
+
+    startAvailabilityRefresh() {
+      if (this.availabilityRefreshTimer) {
+        clearInterval(this.availabilityRefreshTimer);
+      }
+
+      if (this.availabilityRefreshHandler) {
+        document.removeEventListener(
+          "visibilitychange",
+          this.availabilityRefreshHandler
+        );
+      }
+
+      this.availabilityRefreshHandler = () => {
+        if (!document.hidden) {
+          this.refreshShopifyAvailability();
+        }
+      };
+
+      document.addEventListener(
+        "visibilitychange",
+        this.availabilityRefreshHandler
+      );
+
+      // Refresh every two minutes while the page is open.
+      // Also refresh as soon as the customer returns to the tab.
+      this.availabilityRefreshTimer = setInterval(() => {
+        if (!document.hidden) {
+          this.refreshShopifyAvailability();
+        }
+      }, 120000);
+    },
+
+    async refreshShopifyAvailability() {
+      if (
+        !this.shopifyReady ||
+        this.availabilityRefreshInFlight ||
+        !window.TaharShopify ||
+        typeof window.TaharShopify.syncProducts !== "function"
+      ) {
+        return;
+      }
+
+      this.availabilityRefreshInFlight = true;
+
+      try {
+        var currentProductId = this.product ? this.product.id : null;
+        var currentDetailSize = this.selectedSize || "";
+
+        var refreshedProducts = await window.TaharShopify.syncProducts(
+          this.products
+        );
+
+        if (
+          !Array.isArray(refreshedProducts) ||
+          refreshedProducts.length !== this.products.length
+        ) {
+          throw new Error("Shopify returned an incomplete stock update.");
+        }
+
+        this.products = refreshedProducts;
+        this.setDefaultSelections();
+
+        // Product detail pages hold a separate selected product reference.
+        // Refresh that reference too, so stock changes appear without reloading.
+        if (currentProductId) {
+          this.product = this.products.find(function (product) {
+            return product.id === currentProductId;
+          }) || this.products[0];
+
+          var selectedVariant = this.product && this.product.sizes.find(
+            (size) => size.size === currentDetailSize
+          );
+
+          if (!selectedVariant || selectedVariant.availableForSale !== true) {
+            var nextAvailable = this.product && this.product.sizes.find(
+              function (size) {
+                return size.availableForSale === true;
+              }
+            );
+
+            this.selectedSize =
+              (nextAvailable || (this.product && this.product.sizes[0]))?.size || "";
+          }
+        }
+
+        console.info("Tahar stock availability refreshed from Shopify.");
+
+      } catch (error) {
+        // Keep the last known stock state if a temporary refresh fails.
+        console.warn("Shopify availability refresh failed:", error);
+
+      } finally {
+        this.availabilityRefreshInFlight = false;
       }
     },
 
@@ -802,8 +922,12 @@ function productPage() {
 
       this.product = this.findProduct(id);
 
+      var firstAvailableSize = this.product?.sizes.find(function (size) {
+        return size.availableForSale === true;
+      });
+
       this.selectedSize =
-        this.product?.sizes[0]?.size || "";
+        (firstAvailableSize || this.product?.sizes[0])?.size || "";
 
       this.setDefaultSelections();
 

@@ -53,8 +53,8 @@
           <div class="product-info">
             <a :href="'/product.html?id='+product.id"><h3 x-text="product.name"></h3></a>
             <div class="product-price"><span x-text="money(priceFor(product))"></span><small x-text="'/ '+selectedSizes[product.id]"></small></div>
-            <div class="size-row" role="group" :aria-label="'Pack size for '+product.name"><template x-for="s in product.sizes.filter(s => sizeFilter === 'all' || s.size === sizeFilter)" :key="s.size"><button type="button" class="size-pill" :class="{active:selectedSizes[product.id]===s.size}" :aria-pressed="selectedSizes[product.id]===s.size" @click="selectedSizes[product.id]=s.size" x-text="s.size"></button></template></div>
-            <button class="add-button" @click="add(product,selectedSizes[product.id])"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add to basket</button>
+            <div class="size-row" role="group" :aria-label="'Pack size for '+product.name"><template x-for="s in product.sizes.filter(s => sizeFilter === 'all' || s.size === sizeFilter)" :key="s.size"><button type="button" class="size-pill" :class="{active:selectedSizes[product.id]===s.size,'is-unavailable':shopifyReady && s.availableForSale===false}" :disabled="!shopifyReady || s.availableForSale!==true" :aria-disabled="s.availableForSale!==true" :aria-pressed="selectedSizes[product.id]===s.size" :title="s.availableForSale===false ? 'Currently unavailable' : ''" @click="if(s.availableForSale===true) selectedSizes[product.id]=s.size" x-text="s.size"></button></template></div>
+            <button class="add-button" :class="{'is-unavailable':shopifyReady && !isAvailable(product,selectedSizes[product.id])}" :disabled="!shopifyReady || !isAvailable(product,selectedSizes[product.id]) || cartBusy" @click="add(product,selectedSizes[product.id])"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span x-text="!shopifyReady ? 'Loading…' : isAvailable(product,selectedSizes[product.id]) ? 'Add to basket' : 'Unavailable'"></span></button>
           </div>
         </article>
         </template>
