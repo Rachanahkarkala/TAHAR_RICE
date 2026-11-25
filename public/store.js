@@ -889,16 +889,6 @@ function productPage() {
 
     // Product image gallery state.
     galleryIndex: 0,
-    galleryTimer: null,
-    galleryPlaying: false,
-
-    stopGalleryAutoplay() {
-      if (this.galleryTimer) {
-        window.clearInterval(this.galleryTimer);
-        this.galleryTimer = null;
-      }
-      this.galleryPlaying = false;
-    },
 
     scrollGalleryTo(index) {
       var track = this.$refs.galleryTrack;
@@ -911,25 +901,8 @@ function productPage() {
       });
     },
 
-    nextGalleryImage() {
-      this.scrollGalleryTo(this.galleryIndex + 1);
-    },
-
     manualGallery(direction) {
-      this.stopGalleryAutoplay();
       this.scrollGalleryTo(this.galleryIndex + direction);
-    },
-
-    toggleGalleryAutoplay() {
-      if (!this.product?.galleryImage) return;
-      if (this.galleryPlaying) {
-        this.stopGalleryAutoplay();
-        return;
-      }
-      this.galleryPlaying = true;
-      this.galleryTimer = window.setInterval(() => {
-        this.nextGalleryImage();
-      }, 500);
     },
 
     updateGalleryIndex(event) {
@@ -971,7 +944,6 @@ function productPage() {
         window.location.search
       ).get("id");
 
-      this.stopGalleryAutoplay();
       this.galleryIndex = 0;
       this.product = this.findProduct(id);
 

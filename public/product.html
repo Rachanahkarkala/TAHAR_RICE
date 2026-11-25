@@ -33,34 +33,30 @@
   <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/shop.html">Our Rice</a> / <span x-text="product?.name||'Rice'"></span></nav>
   <div class="detail-grid">
     <div class="detail-image detail-gallery"
-         x-ref="detailGallery"
-         @click="toggleGalleryAutoplay()"
          @keydown.left.prevent="manualGallery(-1)"
          @keydown.right.prevent="manualGallery(1)"
          tabindex="0"
          role="region"
-         aria-label="Product image gallery. Click to start or pause automatic slideshow. Use the arrows or swipe to change images.">
+         aria-label="Product image gallery. Use the left and right arrows or swipe to change images.">
       <div class="detail-gallery-track"
            x-ref="galleryTrack"
            @scroll.passive="updateGalleryIndex($event)">
-        <div class="detail-gallery-slide">
+        <div class="detail-gallery-slide detail-gallery-slide--pack">
           <template x-if="product?.image"><img :src="product.image" :alt="product.name + ' packaging'" fetchpriority="high"></template>
           <template x-if="!product?.image"><div class="no-image">Product image<small>Coming soon</small></div></template>
         </div>
         <template x-if="product?.galleryImage">
-          <div class="detail-gallery-slide">
+          <div class="detail-gallery-slide detail-gallery-slide--food">
             <img :src="product.galleryImage" :alt="product.name + ' cooked rice serving'" loading="eager">
           </div>
         </template>
       </div>
 
       <template x-if="product?.galleryImage">
-        <div class="detail-gallery-controls">
+        <div class="detail-gallery-arrows">
           <button type="button" class="gallery-arrow gallery-prev" aria-label="Previous image" @click.stop="manualGallery(-1)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7 7-7-7 7-7"/></svg>
           </button>
-          <span class="gallery-count" x-text="(galleryIndex + 1) + ' / 2'"></span>
-          <button type="button" class="gallery-autoplay" :class="{playing:galleryPlaying}" @click.stop="toggleGalleryAutoplay()" x-text="galleryPlaying ? 'Pause' : 'Auto play'"></button>
           <button type="button" class="gallery-arrow gallery-next" aria-label="Next image" @click.stop="manualGallery(1)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
           </button>
