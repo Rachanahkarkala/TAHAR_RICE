@@ -684,3 +684,25 @@ img{display:block;max-width:100%}
   .gallery-arrow{width:34px;height:34px}
 }
 
+
+/* FINAL FIX: make cooked-rice gallery photos fill the entire gallery frame.
+   The earlier generic .detail-image img !important rule was overriding
+   the gallery sizing, leaving the portrait image small in the centre. */
+.detail-gallery .detail-gallery-slide--food {
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.detail-gallery .detail-gallery-slide--food img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  transform: none !important;
+  filter: none !important;
+}
