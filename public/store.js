@@ -887,6 +887,57 @@ function productPage() {
     selectedSize: "",
     qty: 1,
 
+    // Product image gallery state.
+    galleryIndex: 0,
+    galleryTimer: null,
+    galleryPlaying: false,
+
+    stopGalleryAutoplay() {
+      if (this.galleryTimer) {
+        window.clearInterval(this.galleryTimer);
+        this.galleryTimer = null;
+      }
+      this.galleryPlaying = false;
+    },
+
+    scrollGalleryTo(index) {
+      var track = this.$refs.galleryTrack;
+      if (!track) return;
+      var total = this.product?.galleryImage ? 2 : 1;
+      this.galleryIndex = (index + total) % total;
+      track.scrollTo({
+        left: track.clientWidth * this.galleryIndex,
+        behavior: "smooth"
+      });
+    },
+
+    nextGalleryImage() {
+      this.scrollGalleryTo(this.galleryIndex + 1);
+    },
+
+    manualGallery(direction) {
+      this.stopGalleryAutoplay();
+      this.scrollGalleryTo(this.galleryIndex + direction);
+    },
+
+    toggleGalleryAutoplay() {
+      if (!this.product?.galleryImage) return;
+      if (this.galleryPlaying) {
+        this.stopGalleryAutoplay();
+        return;
+      }
+      this.galleryPlaying = true;
+      this.galleryTimer = window.setInterval(() => {
+        this.nextGalleryImage();
+      }, 500);
+    },
+
+    updateGalleryIndex(event) {
+      var track = event?.target;
+      if (!track || !track.clientWidth) return;
+      this.galleryIndex = Math.round(track.scrollLeft / track.clientWidth);
+    },
+
 
     get related() {
       return this.products.filter((product) => {
@@ -920,6 +971,8 @@ function productPage() {
         window.location.search
       ).get("id");
 
+      this.stopGalleryAutoplay();
+      this.galleryIndex = 0;
       this.product = this.findProduct(id);
 
       var firstAvailableSize = this.product?.sizes.find(function (size) {
