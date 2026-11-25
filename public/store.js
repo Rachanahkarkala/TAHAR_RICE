@@ -69,7 +69,12 @@ function createTaharStore() {
     shopifyCartId: null,
     shopifyCartReady: false,
     cartBusy: false,
+    checkoutBusy: false,
 
+    // Live stock availability refresh.
+    availabilityRefreshTimer: null,
+    availabilityRefreshHandler: null,
+    availabilityRefreshInFlight: false,
 
     // ========================================
     // CART COMPUTED VALUES
@@ -138,14 +143,19 @@ function createTaharStore() {
         if (!product.sizes || !product.sizes.length) return;
 
         var current = this.selectedSizes[product.id];
-
-        var exists = product.sizes.some(function (size) {
+        var currentVariant = product.sizes.find(function (size) {
           return size.size === current;
         });
 
-        if (!exists) {
+        // Keep the current selection when it is available.
+        // Otherwise choose the first available pack size.
+        if (!currentVariant || currentVariant.availableForSale !== true) {
+          var firstAvailable = product.sizes.find(function (size) {
+            return size.availableForSale === true;
+          });
+
           this.selectedSizes[product.id] =
-            product.sizes[0].size;
+            (firstAvailable || product.sizes[0]).size;
         }
       });
     },
@@ -186,6 +196,7 @@ function createTaharStore() {
         this.shopifyReady = true;
 
         this.setDefaultSelections();
+        this.startAvailabilityRefresh();
 
         console.info(
           "Tahar catalogue synced with Shopify:",
@@ -215,225 +226,236 @@ function createTaharStore() {
 
 
     // ========================================
-    // INITIALIZE / RESTORE SHOPIFY CART
+    // LIVE SHOPIFY STOCK AVAILABILITY
     // ========================================
 
-    async initShopifyCart() {
+    isAvailable(product, size) {
+      var variant = product && product.sizes && product.sizes.find(function (item) {
+        return item.size === size;
+      });
+
+      return Boolean(variant && variant.availableForSale === true);
+    },
+
+    startAvailabilityRefresh() {
+      if (this.availabilityRefreshTimer) {
+        clearInterval(this.availabilityRefreshTimer);
+      }
+
+      if (this.availabilityRefreshHandler) {
+        document.removeEventListener(
+          "visibilitychange",
+          this.availabilityRefreshHandler
+        );
+      }
+
+      this.availabilityRefreshHandler = () => {
+        if (!document.hidden) {
+          this.refreshShopifyAvailability();
+        }
+      };
+
+      document.addEventListener(
+        "visibilitychange",
+        this.availabilityRefreshHandler
+      );
+
+      // Refresh every two minutes while the page is open.
+      // Also refresh as soon as the customer returns to the tab.
+      this.availabilityRefreshTimer = setInterval(() => {
+        if (!document.hidden) {
+          this.refreshShopifyAvailability();
+        }
+      }, 120000);
+    },
+
+    async refreshShopifyAvailability() {
+      if (
+        !this.shopifyReady ||
+        this.availabilityRefreshInFlight ||
+        !window.TaharShopify ||
+        typeof window.TaharShopify.syncProducts !== "function"
+      ) {
+        return;
+      }
+
+      this.availabilityRefreshInFlight = true;
+
       try {
-        var api = window.TaharShopify;
-        var remoteCart = null;
-        var savedCartId = null;
+        var currentProductId = this.product ? this.product.id : null;
+        var currentDetailSize = this.selectedSize || "";
 
-        // Read previously saved Shopify cart ID.
-        try {
-          savedCartId = localStorage.getItem(
-            "tahar-shopify-cart-id"
-          );
-        } catch (storageError) {
-          console.warn(
-            "Browser storage is unavailable:",
-            storageError
-          );
+        var refreshedProducts = await window.TaharShopify.syncProducts(
+          this.products
+        );
+
+        if (
+          !Array.isArray(refreshedProducts) ||
+          refreshedProducts.length !== this.products.length
+        ) {
+          throw new Error("Shopify returned an incomplete stock update.");
         }
 
-        // Attempt to restore an existing Shopify cart.
-        if (savedCartId) {
-          try {
-            remoteCart = await api.getCart(savedCartId);
-          } catch (restoreError) {
-            console.warn(
-              "Saved Shopify cart could not be restored; creating a new cart.",
-              restoreError
-            );
-          }
+        this.products = refreshedProducts;
+        this.setDefaultSelections();
 
-          if (!remoteCart) {
-            try {
-              localStorage.removeItem("tahar-shopify-cart-id");
-            } catch (storageError) {
-              console.warn(
-                "Could not clear expired cart ID:",
-                storageError
-              );
-            }
-          }
-        }
+        // Product detail pages hold a separate selected product reference.
+        // Refresh that reference too, so stock changes appear without reloading.
+        if (currentProductId) {
+          this.product = this.products.find(function (product) {
+            return product.id === currentProductId;
+          }) || this.products[0];
 
-        // Create a new cart if no valid cart exists.
-        if (!remoteCart) {
-          var legacyItems = [];
+          var selectedVariant = this.product && this.product.sizes.find(
+            (size) => size.size === currentDetailSize
+          );
 
-          // Read any existing localStorage cart.
-          try {
-            legacyItems = JSON.parse(
-              localStorage.getItem("tahar-cart") || "[]"
-            );
-          } catch (legacyError) {
-            console.warn(
-              "Legacy cart could not be read:",
-              legacyError
-            );
-          }
-
-          if (!Array.isArray(legacyItems)) {
-            legacyItems = [];
-          }
-
-          // Convert legacy items into Shopify cart lines.
-          var lines = legacyItems.map((item) => {
-            var product = this.products.find(function (candidate) {
-              return candidate.id === item.id;
-            });
-
-            var variant = product && product.sizes.find(
-              function (candidate) {
-                return candidate.size === item.size;
+          if (!selectedVariant || selectedVariant.availableForSale !== true) {
+            var nextAvailable = this.product && this.product.sizes.find(
+              function (size) {
+                return size.availableForSale === true;
               }
             );
 
-            var variantId =
-              (variant && variant.shopifyVariantId) ||
-              item.shopifyVariantId;
-
-            var quantity = Math.max(
-              1,
-              Math.floor(Number(item.qty) || 1)
-            );
-
-            return variantId
-              ? {
-                  merchandiseId: variantId,
-                  quantity: quantity
-                }
-              : null;
-
-          }).filter(Boolean);
-
-          remoteCart = await api.createCart(lines);
-
-          // Preserve previous basket as a backup.
-          if (legacyItems.length) {
-            try {
-              localStorage.setItem(
-                "tahar-cart-legacy-backup",
-                JSON.stringify(legacyItems)
-              );
-
-              localStorage.removeItem("tahar-cart");
-
-            } catch (storageError) {
-              console.warn(
-                "Legacy cart backup could not be saved:",
-                storageError
-              );
-            }
+            this.selectedSize =
+              (nextAvailable || (this.product && this.product.sizes[0]))?.size || "";
           }
         }
 
-        this.applyShopifyCart(remoteCart);
-        this.shopifyCartReady = true;
-
-        console.info(
-          "Shopify cart restored:",
-          this.cart.length,
-          "lines"
-        );
+        console.info("Tahar stock availability refreshed from Shopify.");
 
       } catch (error) {
-        this.shopifyCartReady = false;
+        // Keep the last known stock state if a temporary refresh fails.
+        console.warn("Shopify availability refresh failed:", error);
 
-        console.error(
-          "Shopify cart initialization failed:",
-          error
-        );
-
-        this.notify(
-          "Unable to load your basket. Please refresh."
-        );
+      } finally {
+        this.availabilityRefreshInFlight = false;
       }
     },
+
+
+    // ========================================
+    // INITIALIZE / RESTORE SHOPIFY CART
+    // ========================================
+
+    
+async cartRequest(path, method = "GET", body = null) {
+  const options = {
+    method,
+    credentials: "same-origin",
+    headers: {}
+  };
+
+  if (body !== null) {
+    options.headers["Content-Type"] = "application/json";
+    options.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(path, options);
+
+  let result;
+
+  try {
+    result = await response.json();
+  } catch {
+    throw new Error("Cloudflare returned an invalid response.");
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      result.error || `Cart request failed: ${response.status}`
+    );
+  }
+
+  return result;
+},
+
+async initShopifyCart() {
+  try {
+    // Retrieve the cart associated with the secure session cookie.
+    let result = await this.cartRequest("/api/cart");
+
+    // Create a cart if this browser has no existing session.
+    if (!result.cart) {
+      result = await this.cartRequest(
+        "/api/cart",
+        "POST",
+        {}
+      );
+    }
+
+    if (!result.cart) {
+      throw new Error("Shopify cart could not be initialized.");
+    }
+
+    this.applyShopifyCart(result.cart);
+    this.shopifyCartReady = true;
+
+    console.info("Secure Shopify cart initialized.");
+
+  } catch (error) {
+    this.shopifyCartReady = false;
+    console.error("Secure cart initialization failed:", error);
+
+    this.notify(
+      "Unable to load your basket. Please refresh."
+    );
+  }
+},
+
 
 
     // ========================================
     // APPLY SHOPIFY CART TO FRONTEND
     // ========================================
 
-    applyShopifyCart(remoteCart) {
-      if (!remoteCart || !remoteCart.id) {
-        throw new Error("Shopify returned an invalid cart.");
-      }
+    
+applyShopifyCart(remoteCart) {
+  if (!remoteCart) {
+    throw new Error("Invalid cart response.");
+  }
 
-      this.shopifyCart = remoteCart;
-      this.shopifyCartId = remoteCart.id;
+  // No Shopify Cart ID is stored in browser JavaScript.
+  this.shopifyCart = remoteCart;
+  this.shopifyCartId = null;
 
-      this.save();
+  const lines = remoteCart.lines?.nodes || [];
 
-      var lines =
-        remoteCart.lines && remoteCart.lines.nodes
-          ? remoteCart.lines.nodes
-          : [];
+  this.cart = lines.map(line => {
+    const merchandise = line.merchandise || {};
+    const remoteProduct = merchandise.product || {};
 
-      this.cart = lines.map((line) => {
-        var merchandise = line.merchandise || {};
+    const product = this.products.find(p =>
+      p.sizes.some(
+        s => s.shopifyVariantId === merchandise.id
+      )
+    );
 
-        var product = this.products.find(function (candidate) {
-          return candidate.sizes.some(function (size) {
-            return size.shopifyVariantId === merchandise.id;
-          });
-        });
+    const variant = product?.sizes.find(
+      s => s.shopifyVariantId === merchandise.id
+    );
 
-        var variant = product && product.sizes.find(
-          function (size) {
-            return size.shopifyVariantId === merchandise.id;
-          }
-        );
+    const sizeOption = merchandise.selectedOptions?.find(
+      option => /pack\s*size|size|weight/i.test(option.name)
+    );
 
-        var sizeOption = (
-          merchandise.selectedOptions || []
-        ).find(function (option) {
-          return /pack\s*size|size|weight/i.test(
-            option.name || ""
-          );
-        });
+    return {
+      key: line.id,
+      lineId: line.id,
+      shopifyVariantId: merchandise.id,
+      id: product?.id || "",
+      name: product?.name || remoteProduct.title || "Tahar product",
+      size: variant?.size || sizeOption?.value || merchandise.title,
+      price: Number(line.cost.amountPerQuantity.amount),
+      image:
+        product?.image ||
+        remoteProduct.featuredImage?.url ||
+        "",
+      qty: line.quantity
+    };
+  });
+},
 
-        return {
-          key: line.id,
-          lineId: line.id,
-
-          shopifyVariantId: merchandise.id,
-
-          id: product ? product.id : "",
-
-          name: product
-            ? product.name
-            : (
-                merchandise.product &&
-                merchandise.product.title
-              ) || "Tahar product",
-
-          size:
-            (variant && variant.size) ||
-            (sizeOption && sizeOption.value) ||
-            merchandise.title ||
-            "",
-
-          price: Number(
-            line.cost.amountPerQuantity.amount
-          ),
-
-          image:
-            (product && product.image) ||
-            (
-              merchandise.product &&
-              merchandise.product.featuredImage &&
-              merchandise.product.featuredImage.url
-            ) ||
-            "",
-
-          qty: line.quantity
-        };
-      });
-    },
 
 
     // ========================================
@@ -441,22 +463,10 @@ function createTaharStore() {
     // ========================================
 
     save() {
-      if (!this.shopifyCart || !this.shopifyCart.id) {
-        return;
-      }
-
-      try {
-        localStorage.setItem(
-          "tahar-shopify-cart-id",
-          this.shopifyCart.id
-        );
-      } catch (error) {
-        console.warn(
-          "Could not persist Shopify cart ID:",
-          error
-        );
-      }
-    },
+  // Shopify cart contents and the actual Cart ID
+  // are stored securely on the Cloudflare backend.
+  // The browser uses only the HttpOnly session cookie.
+},
 
 
     // ========================================
@@ -517,183 +527,165 @@ function createTaharStore() {
     },
 
 
+
+async checkout() {
+  if (!this.shopifyCartReady) {
+    this.notify("Your basket is still connecting. Please try again.");
+    return;
+  }
+
+  if (!this.cart.length) {
+    this.notify("Your basket is empty.");
+    return;
+  }
+
+  if (this.cartBusy || this.checkoutBusy) return;
+
+  this.checkoutBusy = true;
+
+  // Cloudflare retrieves the secret cart ID server-side
+  // and redirects the customer to Shopify Checkout.
+  window.location.assign("/api/cart/checkout");
+},
+
+
     // ========================================
     // ADD PRODUCT TO SHOPIFY CART
     // ========================================
 
-    async add(product, size, quantity) {
-      if (!this.shopifyReady || !this.shopifyCartReady) {
-        this.notify(
-          "Your basket is still connecting. Please try again."
-        );
-        return false;
+    
+async add(product, size, quantity = 1) {
+  if (!this.shopifyReady || !this.shopifyCartReady) {
+    this.notify("Your basket is still connecting. Please try again.");
+    return false;
+  }
+
+  if (this.cartBusy) return false;
+
+  const selected = product?.sizes.find(
+    variant => variant.size === size
+  );
+
+  if (!selected?.shopifyVariantId) {
+    this.notify("This pack is not connected to Shopify.");
+    return false;
+  }
+
+  if (!selected.availableForSale) {
+    this.notify("This pack is currently unavailable.");
+    return false;
+  }
+
+  this.cartBusy = true;
+
+  try {
+    const result = await this.cartRequest(
+      "/api/cart/lines",
+      "POST",
+      {
+        variantId: selected.shopifyVariantId,
+        quantity: Math.min(
+          20,
+          Math.max(1, Math.floor(Number(quantity) || 1))
+        )
       }
+    );
 
-      if (this.cartBusy) return false;
+    this.applyShopifyCart(result.cart);
 
-      var selected = product && product.sizes.find(
-        function (variant) {
-          return variant.size === size;
-        }
-      );
+    this.notify(product.name + " added to your basket");
+    return true;
 
-      if (!selected || !selected.shopifyVariantId) {
-        this.notify(
-          "This pack is not connected to Shopify."
-        );
-        return false;
-      }
+  } catch (error) {
+    console.error("Secure add-to-cart failed:", error);
+    this.notify(error.message || "Could not add this product.");
+    return false;
 
-      if (!selected.availableForSale) {
-        this.notify(
-          "This pack is currently unavailable."
-        );
-        return false;
-      }
-
-      var safeQuantity = Math.max(
-        1,
-        Math.floor(Number(quantity) || 1)
-      );
-
-      this.cartBusy = true;
-
-      try {
-        var updatedCart =
-          await window.TaharShopify.addCartLines(
-            this.shopifyCart.id,
-            [{
-              merchandiseId: selected.shopifyVariantId,
-              quantity: safeQuantity
-            }]
-          );
-
-        this.applyShopifyCart(updatedCart);
-
-        this.notify(
-          product.name + " added to your basket"
-        );
-
-        return true;
-
-      } catch (error) {
-        console.error(
-          "Shopify add-to-cart failed:",
-          error
-        );
-
-        this.notify(
-          "Could not add this product. Please try again."
-        );
-
-        return false;
-
-      } finally {
-        this.cartBusy = false;
-      }
-    },
+  } finally {
+    this.cartBusy = false;
+  }
+},
 
 
     // ========================================
     // UPDATE CART QUANTITY
     // ========================================
 
-    async changeQty(key, delta) {
-      if (this.cartBusy || !this.shopifyCart) {
-        return;
-      }
+    
+async changeQty(key, delta) {
+  if (this.cartBusy || !this.shopifyCartReady) return;
 
-      var item = this.cart.find(function (candidate) {
-        return candidate.key === key;
-      });
+  const item = this.cart.find(i => i.key === key);
+  if (!item) return;
 
-      if (!item) return;
+  const newQuantity = item.qty + delta;
 
-      var newQuantity = item.qty + Number(delta || 0);
+  this.cartBusy = true;
 
-      this.cartBusy = true;
+  try {
+    let result;
 
-      try {
-        var updatedCart;
-
-        if (newQuantity <= 0) {
-          updatedCart =
-            await window.TaharShopify.removeCartLines(
-              this.shopifyCart.id,
-              [item.lineId]
-            );
-
-        } else {
-          updatedCart =
-            await window.TaharShopify.updateCartLines(
-              this.shopifyCart.id,
-              [{
-                id: item.lineId,
-                quantity: newQuantity
-              }]
-            );
+    if (newQuantity <= 0) {
+      result = await this.cartRequest(
+        "/api/cart/lines",
+        "DELETE",
+        { lineId: item.lineId }
+      );
+    } else {
+      result = await this.cartRequest(
+        "/api/cart/lines",
+        "PATCH",
+        {
+          lineId: item.lineId,
+          quantity: newQuantity
         }
+      );
+    }
 
-        this.applyShopifyCart(updatedCart);
+    this.applyShopifyCart(result.cart);
 
-      } catch (error) {
-        console.error(
-          "Shopify quantity update failed:",
-          error
-        );
+  } catch (error) {
+    console.error("Secure quantity update failed:", error);
+    this.notify(error.message || "Could not update quantity.");
 
-        this.notify(
-          "Could not update quantity."
-        );
-
-      } finally {
-        this.cartBusy = false;
-      }
-    },
+  } finally {
+    this.cartBusy = false;
+  }
+},
 
 
     // ========================================
     // REMOVE CART ITEM
     // ========================================
 
-    async removeItem(key) {
-      if (this.cartBusy || !this.shopifyCart) {
-        return;
-      }
+    
+async removeItem(key) {
+  if (this.cartBusy || !this.shopifyCartReady) return;
 
-      var item = this.cart.find(function (candidate) {
-        return candidate.key === key;
-      });
+  const item = this.cart.find(i => i.key === key);
+  if (!item) return;
 
-      if (!item) return;
+  this.cartBusy = true;
 
-      this.cartBusy = true;
+  try {
+    const result = await this.cartRequest(
+      "/api/cart/lines",
+      "DELETE",
+      { lineId: item.lineId }
+    );
 
-      try {
-        var updatedCart =
-          await window.TaharShopify.removeCartLines(
-            this.shopifyCart.id,
-            [item.lineId]
-          );
+    this.applyShopifyCart(result.cart);
+    this.notify("Item removed from basket");
 
-        this.applyShopifyCart(updatedCart);
+  } catch (error) {
+    console.error("Secure removal failed:", error);
+    this.notify(error.message || "Could not remove this item.");
 
-        this.notify("Item removed from basket");
+  } finally {
+    this.cartBusy = false;
+  }
+},
 
-      } catch (error) {
-        console.error(
-          "Shopify item removal failed:",
-          error
-        );
-
-        this.notify(
-          "Could not remove this item."
-        );
-
-      } finally {
-        this.cartBusy = false;
-      }
-    },
 
 
     // ========================================
@@ -930,8 +922,12 @@ function productPage() {
 
       this.product = this.findProduct(id);
 
+      var firstAvailableSize = this.product?.sizes.find(function (size) {
+        return size.availableForSale === true;
+      });
+
       this.selectedSize =
-        this.product?.sizes[0]?.size || "";
+        (firstAvailableSize || this.product?.sizes[0])?.size || "";
 
       this.setDefaultSelections();
 

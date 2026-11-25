@@ -489,3 +489,75 @@ img{display:block;max-width:100%}
         transform: scale(1.12);
     }
 }
+
+.checkout-button {
+  width: 100%;
+}
+
+.checkout-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* =========================================
+   LIVE SHOPIFY STOCK AVAILABILITY STATES
+   ========================================= */
+
+.size-pill.is-unavailable,
+.size-option.is-unavailable {
+  opacity: 0.42;
+  color: var(--text-soft);
+  border-color: var(--line);
+  background: transparent;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.size-pill.is-unavailable:hover,
+.size-option.is-unavailable:hover,
+.size-pill.is-unavailable.active,
+.size-option.is-unavailable.active {
+  opacity: 0.42;
+  color: var(--text-soft);
+  border-color: var(--line);
+  background: transparent;
+  transform: none;
+  box-shadow: none;
+}
+
+.size-pill:disabled,
+.size-option:disabled {
+  cursor: not-allowed;
+}
+
+.size-option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.size-status {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+  color: currentColor;
+}
+
+.add-button.is-unavailable:disabled,
+.detail-buy .button.is-unavailable:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  background: transparent;
+  color: var(--text-soft);
+  border-color: var(--line);
+  transform: none;
+}
+
+.add-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
