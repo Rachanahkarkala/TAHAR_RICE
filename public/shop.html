@@ -33,13 +33,19 @@
 <section class="page-hero"><div class="container shop-intro"><div><div class="eyebrow">The Tahar collection</div><h1 class="display">Find your <em>favourite.</em></h1></div><p>Explore a range of basmati rice varieties for everyday cooking, family favourites and meals worth sharing.</p></div></section>
 <main class="container shop-main">
   <div class="shop-layout">
-    <aside class="filters" aria-label="Filters">
-      <div class="filter-title">Search rice</div>
-      <input class="search-input" type="search" placeholder="Find a variety…" aria-label="Search rice varieties" x-model.debounce.150ms="query">
-      <div class="filter-title">Rice variety</div>
-      <div class="filter-list"><label><input type="radio" name="variety" value="all" x-model="categoryFilter"> All varieties</label><template x-for="p in products" :key="p.id"><label><input type="radio" name="variety" :value="p.id" x-model="categoryFilter"><span x-text="p.category"></span></label></template></div>
-      <div class="filter-title">Pack size</div>
-      <div class="filter-list"><label><input type="radio" name="size" value="all" :checked="sizeFilter === 'all'" @change="applySizeFilter('all')"> All sizes</label><label><input type="radio" name="size" value="1 kg" :checked="sizeFilter === '1 kg'" @change="applySizeFilter('1 kg')"> 1 kg</label><label><input type="radio" name="size" value="5 kg" :checked="sizeFilter === '5 kg'" @change="applySizeFilter('5 kg')"> 5 kg</label><label><input type="radio" name="size" value="30 kg" :checked="sizeFilter === '30 kg'" @change="applySizeFilter('30 kg')"> 30 kg</label></div>
+    <aside class="filters" aria-label="Filters" x-data="{ filtersOpen: window.matchMedia('(min-width: 901px)').matches }">
+      <button class="filter-toggle" type="button" @click="filtersOpen = !filtersOpen" :aria-expanded="filtersOpen">
+        <span><span class="filter-toggle-title">Filter rice</span><small>Choose a variety or pack size</small></span>
+        <svg class="filter-toggle-icon" :class="{ 'is-open': filtersOpen }" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="filter-content" x-show="filtersOpen" x-transition.opacity.duration.180ms>
+        <div class="filter-title">Search rice</div>
+        <input class="search-input" type="search" placeholder="Find a variety…" aria-label="Search rice varieties" x-model.debounce.150ms="query">
+        <div class="filter-title">Rice variety</div>
+        <div class="filter-list"><label><input type="radio" name="variety" value="all" x-model="categoryFilter"> All varieties</label><template x-for="p in products" :key="p.id"><label><input type="radio" name="variety" :value="p.id" x-model="categoryFilter"><span x-text="p.category"></span></label></template></div>
+        <div class="filter-title">Pack size</div>
+        <div class="filter-list"><label><input type="radio" name="size" value="all" :checked="sizeFilter === 'all'" @change="applySizeFilter('all')"> All sizes</label><label><input type="radio" name="size" value="1 kg" :checked="sizeFilter === '1 kg'" @change="applySizeFilter('1 kg')"> 1 kg</label><label><input type="radio" name="size" value="5 kg" :checked="sizeFilter === '5 kg'" @change="applySizeFilter('5 kg')"> 5 kg</label><label><input type="radio" name="size" value="30 kg" :checked="sizeFilter === '30 kg'" @change="applySizeFilter('30 kg')"> 30 kg</label></div>
+      </div>
     </aside>
     <section>
       <div class="shop-toolbar"><span class="result-count" x-text="filtered.length+' varieties'+(sizeFilter === 'all' ? '' : ' · '+sizeFilter+' packs')"></span><select class="sort-select" x-model="sort" aria-label="Sort products"><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option></select></div>
