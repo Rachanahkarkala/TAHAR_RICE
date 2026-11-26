@@ -56,6 +56,39 @@
   </div>
 </div>
 
+<section class="collection section">
+  <div class="container">
+    <div class="section-head" data-reveal><div><div class="eyebrow">Find your everyday favourite</div><h2 class="display">The Tahar <em>collection.</em></h2></div><a class="text-link" href="./shop.html">View all rice <svg class="arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    <div class="product-grid">
+      <template x-for="product in featuredProducts" :key="product.id">
+        <article class="product-card" x-data="{closeup:false}">
+          <div class="product-media" :class="{'is-closeup':closeup}">
+            <a class="product-visual" :href="'/product.html?id='+product.id" :aria-label="'View '+product.name">
+              <template x-if="product.image"><img :src="product.image" :alt="product.name" loading="lazy"></template>
+              <template x-if="!product.image"><div class="no-image">Rozanna<small>Product image coming soon</small></div></template>
+            </a>
+            <template x-if="product.galleryImage">
+              <div class="product-media-extra">
+                <a class="product-closeup" :href="'/product.html?id='+product.id" :tabindex="closeup ? 0 : -1" :aria-hidden="!closeup" :aria-label="'View '+product.name">
+                  <img :src="product.galleryImage" :alt="product.name + ' cooked rice closeup'" loading="lazy" decoding="async" :style="'--fx:'+(product.galleryFocus?.x ?? 50)+'%;--fy:'+(product.galleryFocus?.y ?? 50)+'%;--zoom:'+(product.galleryFocus?.zoom ?? 1.2)">
+                </a>
+                <button type="button" class="media-arrow media-next" x-show="!closeup" @click="closeup=true" :aria-label="'Show closeup of '+product.name"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-7-7 7 7-7 7"/></svg></button>
+                <button type="button" class="media-arrow media-prev" x-show="closeup" x-cloak @click="closeup=false" :aria-label="'Back to '+product.name+' pack'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7 7-7-7 7-7"/></svg></button>
+              </div>
+            </template>
+          </div>
+          <div class="product-info">
+            <a :href="'/product.html?id='+product.id"><h3 x-text="product.name"></h3></a>
+            <div class="product-price"><span x-text="money(priceFor(product))"></span><small x-text="'/ '+selectedSizes[product.id]"></small></div>
+            <div class="size-row" role="group" :aria-label="'Pack size for '+product.name"><template x-for="s in product.sizes" :key="s.size"><button type="button" class="size-pill" :class="{active:selectedSizes[product.id]===s.size,'is-unavailable':shopifyReady && s.availableForSale===false}" :disabled="!shopifyReady || s.availableForSale!==true" :aria-disabled="s.availableForSale!==true" :aria-pressed="selectedSizes[product.id]===s.size" :title="s.availableForSale===false ? 'Currently unavailable' : ''" @click="if(s.availableForSale===true) selectedSizes[product.id]=s.size" x-text="s.size"></button></template></div>
+            <button class="add-button" :class="{'is-unavailable':shopifyReady && !isAvailable(product,selectedSizes[product.id])}" :disabled="!shopifyReady || !isAvailable(product,selectedSizes[product.id]) || cartBusy" @click="add(product,selectedSizes[product.id])"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span x-text="!shopifyReady ? 'Loading…' : isAvailable(product,selectedSizes[product.id]) ? 'Add to basket' : 'Unavailable'"></span></button>
+          </div>
+        </article>
+      </template>
+    </div>
+  </div>
+</section>
+
 <section class="section" id="story">
   <div class="container intro-grid">
     <div class="intro-visual" data-reveal><img src="/images/tahar-logo-clear.png" alt="Tahar logo"><p>“Your culinary companion”</p></div>
@@ -68,8 +101,8 @@
 
       <div class="intro-story-scroll" role="region" aria-label="Discover the Tahar story and basmati rice collection" tabindex="0">
         <div class="intro-story-block">
-          <h3>Rice is part of the story.</h3>
-          <p>In an Indian home, rice is never just another ingredient. It is part of the weekday lunch that brings everyone to the table, the fragrant pulao made for a familiar gathering, and the slow-cooked biryani saved for a special occasion. Different meals call for different grains, textures and cooking experiences. Tahar is built around that simple understanding: the right rice can make a good meal feel even more complete.</p>
+          <h3>From the Founder.</h3>
+          <p>Yoginder Singh Rana, Founder and Managing Director of Tahar, believes that great food begins with the right ingredients. Built on an understanding of Indian kitchens and the role rice plays in bringing people together, Tahar was envisioned to make quality basmati rice a part of every meal and every occasion. With a focus on quality, consistency and the diversity of Indian cooking, the vision is to bring thoughtfully selected rice varieties to households, making every grain a part of something memorable.</p>
         </div>
 
         <div class="intro-story-block">
@@ -97,30 +130,8 @@
   </div>
 </section>
 
-<section class="collection section">
-  <div class="container">
-    <div class="section-head" data-reveal><div><div class="eyebrow">Find your everyday favourite</div><h2 class="display">The Tahar <em>collection.</em></h2></div><a class="text-link" href="./shop.html">View all rice <svg class="arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
-    <div class="product-grid">
-      <template x-for="product in featuredProducts" :key="product.id">
-        <article class="product-card">
-          <a class="product-visual" :href="'/product.html?id='+product.id" :aria-label="'View '+product.name">
-            <template x-if="product.image"><img :src="product.image" :alt="product.name" loading="lazy"></template>
-            <template x-if="!product.image"><div class="no-image">Rozanna<small>Product image coming soon</small></div></template>
-          </a>
-          <div class="product-info">
-            <a :href="'/product.html?id='+product.id"><h3 x-text="product.name"></h3></a>
-            <div class="product-price"><span x-text="money(priceFor(product))"></span><small x-text="'/ '+selectedSizes[product.id]"></small></div>
-            <div class="size-row" role="group" :aria-label="'Pack size for '+product.name"><template x-for="s in product.sizes" :key="s.size"><button type="button" class="size-pill" :class="{active:selectedSizes[product.id]===s.size,'is-unavailable':shopifyReady && s.availableForSale===false}" :disabled="!shopifyReady || s.availableForSale!==true" :aria-disabled="s.availableForSale!==true" :aria-pressed="selectedSizes[product.id]===s.size" :title="s.availableForSale===false ? 'Currently unavailable' : ''" @click="if(s.availableForSale===true) selectedSizes[product.id]=s.size" x-text="s.size"></button></template></div>
-            <button class="add-button" :class="{'is-unavailable':shopifyReady && !isAvailable(product,selectedSizes[product.id])}" :disabled="!shopifyReady || !isAvailable(product,selectedSizes[product.id]) || cartBusy" @click="add(product,selectedSizes[product.id])"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span x-text="!shopifyReady ? 'Loading…' : isAvailable(product,selectedSizes[product.id]) ? 'Add to basket' : 'Unavailable'"></span></button>
-          </div>
-        </article>
-      </template>
-    </div>
-  </div>
-</section>
-
 <section class="interlude on-dark">
-  <div class="interlude-image" role="img" aria-label="A warm Indian rice meal"></div>
+  <div class="interlude-photo"><img src="/images/cook-rice-the-tahar-way.png" alt="Hands serving fluffy Tahar Premium Basmati rice on a plate beside the pack, with the line: Cook rice, the Tahar way." width="1117" height="1408" loading="lazy" decoding="async"></div>
   <div class="interlude-copy" data-reveal><div class="eyebrow">For the everyday and the extraordinary</div><h2 class="display">The heart of a meal is often the <em>simplest thing.</em></h2><p class="lead">A pot of rice, a favourite recipe, a table with room for one more. The best food memories are made together.</p><a class="text-link" href="./shop.html">Find your rice <svg class="arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
 </section>
 

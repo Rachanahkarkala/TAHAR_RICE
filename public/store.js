@@ -108,14 +108,15 @@ function createTaharStore() {
     },
 
     get featuredProducts() {
-      return this.products.filter(function (product) {
-        return [
-          "premium",
-          "traditional",
-          "everyday",
-          "moti-mogra"
-        ].includes(product.id);
-      });
+      var featuredOrder = [
+        "traditional",
+        "premium",
+        "rozanna",
+        "everyday"
+      ];
+      return featuredOrder
+        .map((id) => this.products.find((product) => product.id === id))
+        .filter(Boolean);
     },
 
 

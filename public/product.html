@@ -32,6 +32,7 @@
 <main class="container detail-wrap">
   <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/shop.html">Our Rice</a> / <span x-text="product?.name||'Rice'"></span></nav>
   <div class="detail-grid">
+    <div class="detail-gallery-wrap">
     <div class="detail-image detail-gallery"
          @keydown.left.prevent="manualGallery(-1)"
          @keydown.right.prevent="manualGallery(1)"
@@ -47,7 +48,8 @@
         </div>
         <template x-if="product?.galleryImage">
           <div class="detail-gallery-slide detail-gallery-slide--food">
-            <img :src="product.galleryImage" :alt="product.name + ' cooked rice serving'" loading="eager">
+            <img :src="product.galleryImage" :alt="product.name + ' cooked rice serving'" loading="eager"
+                 :style="'--fx:'+(product.galleryFocus?.x ?? 50)+'%;--fy:'+(product.galleryFocus?.y ?? 50)+'%;--zoom:'+(product.galleryFocus?.zoom ?? 1.2)">
           </div>
         </template>
       </div>
@@ -62,6 +64,15 @@
           </button>
         </div>
       </template>
+
+      <template x-if="product?.galleryImage">
+        <div class="detail-gallery-dots" role="tablist" aria-label="Choose image">
+          <button type="button" role="tab" aria-label="Pack image" :aria-selected="galleryIndex===0" :class="{active:galleryIndex===0}" @click.stop="scrollGalleryTo(0)"></button>
+          <button type="button" role="tab" aria-label="Cooked rice image" :aria-selected="galleryIndex===1" :class="{active:galleryIndex===1}" @click.stop="scrollGalleryTo(1)"></button>
+        </div>
+      </template>
+    </div>
+    <p class="detail-gallery-caption">Images are for visual representation only. Actual packaging, grain appearance and serving may vary slightly.</p>
     </div>
     <section class="detail-info">
       <div class="eyebrow">Tahar · Your culinary companion</div>
