@@ -959,3 +959,9 @@ img{display:block;max-width:100%}
   .filter-toggle { border-radius: 14px; }
   .filter-content { border-radius: 14px; }
 }
+/* Remove decorative hyphens before all eyebrow headings */
+.eyebrow::before,
+.eyebrow::after {
+    display: none !important;
+    content: none !important;
+}
