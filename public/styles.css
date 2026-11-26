@@ -738,3 +738,224 @@ img{display:block;max-width:100%}
   .intro-story-link{margin-top:18px}
 }
 
+.eyebrow::before {
+    display: none !important;
+    content: none !important;
+}
+
+/* =========================================================
+   FINAL RESPONSIVE POLISH — mobile alignment and shop filters
+   ========================================================= */
+
+/* Hero statistics: keep divider lines, centre text within each column. */
+@media (max-width: 620px) {
+  .hero-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    width: 100%;
+    max-width: 100%;
+  }
+  .hero-fact,
+  .hero-fact + .hero-fact {
+    min-width: 0;
+    padding: 16px 8px 0;
+    text-align: center;
+  }
+  .hero-fact + .hero-fact {
+    border-left: 1px solid var(--on-dark-line);
+  }
+  .hero-fact strong {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    font-size: clamp(24px, 7vw, 28px);
+  }
+  .hero-fact .hero-count-note {
+    margin-left: 6px;
+    font-size: 11px;
+  }
+  .hero-fact > span {
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: .075em;
+  }
+}
+
+/* Move the tagline lower inside the arch. */
+.intro-visual p {
+  bottom: 4% !important;
+  left: 8%;
+  right: 8%;
+  margin: 0;
+  line-height: 1.25;
+}
+@media (max-width: 620px) {
+  .intro-visual p {
+    bottom: 3.5% !important;
+    font-size: clamp(17px, 5vw, 20px);
+  }
+}
+
+/* Keep CTA arches outside the content on desktop; remove awkward vertical lines on mobile/tablet. */
+.closing::before,
+.closing::after {
+  width: 460px;
+  height: 500px;
+  opacity: .42;
+}
+.closing::before { left: -260px; }
+.closing::after { right: -260px; }
+
+@media (max-width: 900px) {
+  .closing::before,
+  .closing::after {
+    display: none;
+    content: none;
+  }
+  .closing {
+    padding: 76px 20px 82px;
+  }
+  .closing h2 {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 30px;
+    font-size: clamp(48px, 12vw, 66px);
+    line-height: .98;
+  }
+  .closing .button {
+    position: relative;
+    z-index: 1;
+    max-width: 100%;
+  }
+}
+
+/* Simple, intentional dropdown trigger for shop filters. */
+.filters {
+  position: sticky;
+  top: 112px;
+  z-index: 12;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.filter-toggle {
+  display: flex;
+  width: 100%;
+  min-height: 66px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  background: var(--paper);
+  color: var(--text);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 0 5px 18px color-mix(in srgb, var(--forest) 4%, transparent);
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.filter-toggle:hover,
+.filter-toggle[aria-expanded="true"] {
+  border-color: color-mix(in srgb, var(--olive) 65%, var(--line-strong));
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--forest) 8%, transparent);
+}
+.filter-toggle > span:first-child {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.filter-toggle-title {
+  display: block;
+  color: var(--forest);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.filter-toggle small {
+  display: block;
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.filter-toggle-icon {
+  display: block;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  overflow: visible;
+  fill: none;
+  stroke: var(--forest);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform .22s ease;
+}
+.filter-toggle-icon.is-open { transform: rotate(180deg); }
+.filter-content {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 9px);
+  left: 0;
+  right: 0;
+  max-height: min(68vh, 520px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px 18px 22px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+  box-shadow: 0 18px 42px color-mix(in srgb, var(--charcoal) 14%, transparent);
+}
+.filter-content .filter-title {
+  margin: 18px 0 11px;
+  font-size: 10.5px;
+}
+.filter-content .filter-title:first-child { margin-top: 0; }
+.filter-content .filter-list { gap: 11px; }
+.filter-content .filter-list label {
+  min-height: 25px;
+  font-size: 13px;
+}
+.filter-content .search-input {
+  min-height: 43px;
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .filters {
+    position: relative;
+    top: auto;
+    width: 100%;
+    margin-bottom: 22px;
+  }
+  .filter-toggle {
+    min-height: 62px;
+    padding: 13px 16px;
+  }
+  .filter-content {
+    max-height: min(65vh, 470px);
+    padding: 18px 16px 20px;
+  }
+}
+@media (max-width: 620px) {
+  .hero-facts { margin-top: 26px; }
+  .closing {
+    min-height: 270px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .filter-toggle { border-radius: 14px; }
+  .filter-content { border-radius: 14px; }
+}

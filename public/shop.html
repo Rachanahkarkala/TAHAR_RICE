@@ -33,12 +33,12 @@
 <section class="page-hero"><div class="container shop-intro"><div><div class="eyebrow">The Tahar collection</div><h1 class="display">Find your <em>favourite.</em></h1></div><p>Explore a range of basmati rice varieties for everyday cooking, family favourites and meals worth sharing.</p></div></section>
 <main class="container shop-main">
   <div class="shop-layout">
-    <aside class="filters" aria-label="Filters" x-data="{ filtersOpen: window.matchMedia('(min-width: 901px)').matches }">
-      <button class="filter-toggle" type="button" @click="filtersOpen = !filtersOpen" :aria-expanded="filtersOpen">
+    <aside class="filters" aria-label="Filters" x-data="{ filtersOpen: false }">
+      <button class="filter-toggle" type="button" aria-controls="rice-filter-options" @click="filtersOpen = !filtersOpen" :aria-expanded="filtersOpen">
         <span><span class="filter-toggle-title">Filter rice</span><small>Choose a variety or pack size</small></span>
         <svg class="filter-toggle-icon" :class="{ 'is-open': filtersOpen }" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>
-      <div class="filter-content" x-show="filtersOpen" x-transition.opacity.duration.180ms>
+      <div class="filter-content" id="rice-filter-options" x-show="filtersOpen" x-transition.opacity.duration.180ms>
         <div class="filter-title">Search rice</div>
         <input class="search-input" type="search" placeholder="Find a variety…" aria-label="Search rice varieties" x-model.debounce.150ms="query">
         <div class="filter-title">Rice variety</div>
