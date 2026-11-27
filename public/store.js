@@ -17,6 +17,44 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("scroll", onScroll, { passive: true });
   }
 
+  // Home page: gentle "pop" as each section scrolls into view
+  if (document.getElementById("story") && document.querySelector(".collection")) {
+    var popTargets = document.querySelectorAll(
+      ".collection .container, #story .container, .interlude-photo, .interlude-copy, #faqs .container, .closing h2, .closing .button, .footer-main"
+    );
+    var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!reduceMotion && "IntersectionObserver" in window) {
+      popTargets.forEach(function (el, i) {
+        // avoid double animation with the older fade-up on nested blocks
+        el.removeAttribute("data-reveal");
+        el.querySelectorAll("[data-reveal]").forEach(function (n) { n.removeAttribute("data-reveal"); });
+        el.classList.add("pop");
+        if (el.classList.contains("interlude-photo")) el.classList.add("pop--soft");
+        if (el.classList.contains("interlude-copy")) el.style.transitionDelay = ".12s";
+        if (el.matches(".closing .button")) el.style.transitionDelay = ".14s";
+      });
+
+      var popIO = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          var el = entry.target;
+          el.classList.add("is-in");
+          popIO.unobserve(el);
+          var done = function (e) {
+            if (e.propertyName !== "transform") return;
+            el.removeEventListener("transitionend", done);
+            el.classList.remove("pop", "pop--soft", "is-in");
+            el.style.transitionDelay = "";
+          };
+          el.addEventListener("transitionend", done);
+        });
+      }, { threshold: 0.08, rootMargin: "0px 0px -8% 0px" });
+
+      popTargets.forEach(function (el) { popIO.observe(el); });
+    }
+  }
+
   var items = document.querySelectorAll("[data-reveal]");
 
   if (!("IntersectionObserver" in window)) {
