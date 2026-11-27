@@ -117,8 +117,12 @@ img{display:block;max-width:100%}
   radial-gradient(40% 50% at 8% 100%,color-mix(in srgb,var(--forest-deep) 80%,transparent),transparent 70%)}
 .hero-grain{position:absolute;inset:0;z-index:-1;opacity:.5;pointer-events:none;background-image:var(--grain)}
 .hero-inner{width:var(--page);margin:auto;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:clamp(32px,6vw,96px);align-items:stretch;padding:clamp(44px,4.5vw,68px) 0 clamp(44px,4.5vw,68px)}
-.hero h1{font-size:clamp(54px,6.4vw,96px);margin:20px 0 22px;letter-spacing:-.03em;line-height:.96}
-.hero-copy p.lead{color:var(--on-dark-soft);font-size:18px;max-width:46ch}
+.hero h1 {
+    font-size: clamp(54px, 6.4vw, 96px);
+    margin: 95px 0 22px !important;
+    letter-spacing: -.03em;
+    line-height: .96;
+}.hero-copy p.lead{color:var(--on-dark-soft);font-size:18px;max-width:46ch}
 .hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:20px 30px;margin-top:30px}
 .hero-facts{display:flex;flex-wrap:wrap;gap:0;margin-top:clamp(28px,3.4vw,44px);border-top:1px solid var(--on-dark-line);max-width:560px}
 .hero-fact{flex:1 1 150px;padding:20px 24px 0 0}
@@ -249,11 +253,69 @@ img{display:block;max-width:100%}
 .footer-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 24px;margin-top:clamp(40px,5vw,64px);padding-top:22px;border-top:1px solid color-mix(in srgb,var(--ivory) 16%,transparent);font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--ivory) 58%,transparent)}
 
 /* ---------- Page hero (shop) ---------- */
-.page-hero{position:relative;isolation:isolate;overflow:hidden;background:var(--forest);color:var(--on-dark);padding:clamp(56px,7vw,96px) 0 clamp(48px,6vw,80px)}
-.page-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(50% 90% at 85% 20%,color-mix(in srgb,var(--olive) 50%,transparent),transparent 70%)}
-.page-hero h1{font-size:clamp(52px,7vw,96px);margin-top:20px;letter-spacing:-.03em;line-height:.98}
-.shop-intro{display:flex;justify-content:space-between;align-items:flex-end;gap:32px}
-.shop-intro p{max-width:40ch;font-size:16px;line-height:1.8;color:var(--on-dark-soft)}
+
+/* ---------- Page hero: balanced vertical alignment ---------- */
+
+.page-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: var(--forest);
+    color: var(--on-dark);
+
+    min-height: 360px;
+    display: flex;
+    align-items: center;
+    padding: 48px 0;
+}
+
+.page-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+        50% 90% at 85% 20%,
+        color-mix(in srgb, var(--olive) 50%, transparent),
+        transparent 70%
+    );
+}
+
+.page-hero h1 {
+    font-size: clamp(52px, 7vw, 96px);
+    margin-top: 20px;
+    letter-spacing: -.03em;
+    line-height: .98;
+}
+
+.shop-intro {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 32px;
+}
+
+.shop-intro p {
+    max-width: 40ch;
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--on-dark-soft);
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+    .page-hero {
+        min-height: auto;
+        padding: 55px 0;
+    }
+
+    .shop-intro {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+    }
+}
+
 
 /* ---------- Shop ---------- */
 .shop-main{padding:clamp(40px,5vw,72px) 0 clamp(72px,9vw,120px)}
@@ -378,8 +440,10 @@ img{display:block;max-width:100%}
   :root{--page:calc(100% - 36px)}
   .topline{font-size:10px;letter-spacing:.1em}
   .topline i{margin:0 8px}
-  .hero h1{font-size:clamp(50px,15vw,68px)}
-  .hero-fact{flex:1 1 0;padding:16px 12px 0 0}
+.hero h1 {
+    font-size: clamp(50px, 15vw, 68px);
+    margin-top: 105px !important;
+}  .hero-fact{flex:1 1 0;padding:16px 12px 0 0}
   .hero-fact+.hero-fact{padding-left:16px}
   .hero-fact strong{font-size:28px}
   .hero-fact span{font-size:11px}
@@ -560,4 +624,726 @@ img{display:block;max-width:100%}
 .add-button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+/* ---------- Product detail image gallery ---------- */
+.detail-gallery{
+  position:sticky;
+  top:112px;
+  display:block;
+  height:560px;
+  min-height:560px;
+  padding:0;
+  overflow:hidden;
+  isolation:isolate;
+}
+.detail-gallery-track{
+  display:flex;
+  width:100%;
+  height:100%;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  overscroll-behavior-x:contain;
+  touch-action:pan-x pan-y;
+}
+.detail-gallery-track::-webkit-scrollbar{display:none}
+.detail-gallery-slide{
+  flex:0 0 100%;
+  width:100%;
+  height:100%;
+  min-width:0;
+  display:grid;
+  place-items:center;
+  padding:18px;
+  box-sizing:border-box;
+  scroll-snap-align:start;
+  scroll-snap-stop:always;
+}
+.detail-gallery-slide img{
+  display:block;
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  object-position:center;
+  filter:drop-shadow(0 18px 22px color-mix(in srgb,var(--charcoal) 16%,transparent));
+  user-select:none;
+  -webkit-user-drag:none;
+}
+/* Keep the full rice packet visible; let food photography fill the entire frame. */
+.detail-gallery-slide--pack img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+.detail-gallery-slide--food{
+  padding:0;
+}
+.detail-gallery-slide--food img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  filter:none;
+}
+.detail-gallery-arrows{
+  position:absolute;
+  z-index:5;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 14px;
+  pointer-events:none;
+}
+.gallery-arrow{
+  display:grid;
+  place-items:center;
+  width:42px;
+  height:42px;
+  padding:0;
+  border:1px solid color-mix(in srgb,var(--charcoal) 12%,transparent);
+  border-radius:50%;
+  background:color-mix(in srgb,var(--ivory) 48%,transparent);
+  color:color-mix(in srgb,var(--forest) 82%,transparent);
+  backdrop-filter:blur(5px);
+  -webkit-backdrop-filter:blur(5px);
+  cursor:pointer;
+  opacity:.72;
+  pointer-events:auto;
+  transition:opacity .2s ease,background .2s ease,transform .2s ease;
+}
+.gallery-arrow:hover{
+  opacity:1;
+  background:color-mix(in srgb,var(--ivory) 78%,transparent);
+  transform:scale(1.06);
+}
+.gallery-arrow svg{
+  width:18px;
+  height:18px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+@media(max-width:900px){
+  .detail-gallery{position:static;height:500px;min-height:500px}
+}
+@media(max-width:620px){
+  .detail-gallery{height:430px;min-height:430px;padding:0}
+  .detail-gallery-slide{padding:12px}
+  .detail-gallery-slide--food{padding:0}
+  .detail-gallery-arrows{padding:0 9px}
+  .gallery-arrow{width:36px;height:36px}
+}
+@media(max-width:420px){
+  .detail-gallery{height:390px;min-height:390px}
+  .detail-gallery-slide{padding:10px}
+  .detail-gallery-slide--food{padding:0}
+  .gallery-arrow{width:34px;height:34px}
+}
+
+
+/* ---------- Why Tahar: detailed, internally scrollable brand story ---------- */
+.intro-copy{min-width:0;display:flex;flex-direction:column;align-items:flex-start}
+.intro-copy-heading{flex:0 0 auto;width:100%}
+.intro-copy-heading .eyebrow{margin-bottom:4px}
+.intro-copy h2{font-size:clamp(44px,5.4vw,80px);margin:14px 0 18px}
+.intro-summary{max-width:48ch;margin:0 0 22px;font-size:clamp(17px,1.45vw,20px);line-height:1.65;color:var(--text-soft)}
+.intro-story-scroll{width:100%;max-height:clamp(330px,48vh,490px);overflow-y:auto;overscroll-behavior:contain;padding:2px 18px 8px 0;scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--olive) 58%,transparent) transparent;scroll-behavior:smooth}
+.intro-story-scroll::-webkit-scrollbar{width:5px}
+.intro-story-scroll::-webkit-scrollbar-track{background:transparent}
+.intro-story-scroll::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--olive) 48%,transparent);border-radius:999px}
+.intro-story-block{padding:0 0 23px;margin:0 0 22px;border-bottom:1px solid var(--line)}
+.intro-story-block h3{margin:0 0 9px;font-family:var(--serif);font-size:clamp(23px,2.1vw,29px);font-weight:500;line-height:1.2;color:var(--charcoal)}
+.intro-story-block p{max-width:58ch;margin:0 0 12px;font-size:15px;line-height:1.85;color:var(--text-soft)}
+.intro-story-block p:last-child{margin-bottom:0}
+.intro-story-block--last{border-bottom:0;margin-bottom:0;padding-bottom:4px}
+.intro-story-link{margin-top:22px}
+@media(max-width:900px){
+  .intro-copy{width:100%}
+  .intro-story-scroll{max-height:390px;padding-right:14px}
+  .intro-summary{max-width:58ch}
+}
+@media(max-width:620px){
+  .intro-copy h2{margin:12px 0 14px}
+  .intro-summary{font-size:16px;line-height:1.7;margin-bottom:18px}
+  .intro-story-scroll{max-height:360px;padding-right:12px}
+  .intro-story-block{padding-bottom:18px;margin-bottom:18px}
+  .intro-story-block h3{font-size:24px}
+  .intro-story-block p{font-size:14px;line-height:1.8}
+  .intro-story-link{margin-top:18px}
+}
+
+.eyebrow::before {
+    display: none !important;
+    content: none !important;
+}
+
+/* =========================================================
+   FINAL RESPONSIVE POLISH — mobile alignment and shop filters
+   ========================================================= */
+
+/* Hero statistics: keep divider lines, centre text within each column. */
+@media (max-width: 620px) {
+  .hero-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    width: 100%;
+    max-width: 100%;
+  }
+  .hero-fact,
+  .hero-fact + .hero-fact {
+    min-width: 0;
+    padding: 16px 8px 0;
+    text-align: center;
+  }
+  .hero-fact + .hero-fact {
+    border-left: 1px solid var(--on-dark-line);
+  }
+  .hero-fact strong {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    font-size: clamp(24px, 7vw, 28px);
+  }
+  .hero-fact .hero-count-note {
+    margin-left: 6px;
+    font-size: 11px;
+  }
+  .hero-fact > span {
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: .075em;
+  }
+}
+
+/* Move the tagline lower inside the arch. */
+.intro-visual p {
+  bottom: 4% !important;
+  left: 8%;
+  right: 8%;
+  margin: 0;
+  line-height: 1.25;
+}
+@media (max-width: 620px) {
+  .intro-visual p {
+    bottom: 3.5% !important;
+    font-size: clamp(17px, 5vw, 20px);
+  }
+}
+
+/* Keep CTA arches outside the content on desktop; remove awkward vertical lines on mobile/tablet. */
+.closing::before,
+.closing::after {
+  width: 460px;
+  height: 500px;
+  opacity: .42;
+}
+.closing::before { left: -260px; }
+.closing::after { right: -260px; }
+
+@media (max-width: 900px) {
+  .closing::before,
+  .closing::after {
+    display: none;
+    content: none;
+  }
+  .closing {
+    padding: 76px 20px 82px;
+  }
+  .closing h2 {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 30px;
+    font-size: clamp(48px, 12vw, 66px);
+    line-height: .98;
+  }
+  .closing .button {
+    position: relative;
+    z-index: 1;
+    max-width: 100%;
+  }
+}
+
+/* Simple, intentional dropdown trigger for shop filters. */
+.filters {
+  position: sticky;
+  top: 112px;
+  z-index: 12;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.filter-toggle {
+  display: flex;
+  width: 100%;
+  min-height: 66px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  background: var(--paper);
+  color: var(--text);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 0 5px 18px color-mix(in srgb, var(--forest) 4%, transparent);
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.filter-toggle:hover,
+.filter-toggle[aria-expanded="true"] {
+  border-color: color-mix(in srgb, var(--olive) 65%, var(--line-strong));
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--forest) 8%, transparent);
+}
+.filter-toggle > span:first-child {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.filter-toggle-title {
+  display: block;
+  color: var(--forest);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.filter-toggle small {
+  display: block;
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.filter-toggle-icon {
+  display: block;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  overflow: visible;
+  fill: none;
+  stroke: var(--forest);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform .22s ease;
+}
+.filter-toggle-icon.is-open { transform: rotate(180deg); }
+.filter-content {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 9px);
+  left: 0;
+  right: 0;
+  max-height: min(68vh, 520px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px 18px 22px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+  box-shadow: 0 18px 42px color-mix(in srgb, var(--charcoal) 14%, transparent);
+}
+.filter-content .filter-title {
+  margin: 18px 0 11px;
+  font-size: 10.5px;
+}
+.filter-content .filter-title:first-child { margin-top: 0; }
+.filter-content .filter-list { gap: 11px; }
+.filter-content .filter-list label {
+  min-height: 25px;
+  font-size: 13px;
+}
+.filter-content .search-input {
+  min-height: 43px;
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .filters {
+    position: relative;
+    top: auto;
+    width: 100%;
+    margin-bottom: 22px;
+  }
+  .filter-toggle {
+    min-height: 62px;
+    padding: 13px 16px;
+  }
+  .filter-content {
+    max-height: min(65vh, 470px);
+    padding: 18px 16px 20px;
+  }
+}
+@media (max-width: 620px) {
+  .hero-facts { margin-top: 26px; }
+  .closing {
+    min-height: 270px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .filter-toggle { border-radius: 14px; }
+  .filter-content { border-radius: 14px; }
+}
+/* Remove decorative hyphens before all eyebrow headings */
+.eyebrow::before,
+.eyebrow::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* ---------- Product gallery v2: focus on the rice, not the background ---------- */
+.detail-gallery-wrap{position:sticky;top:112px;min-width:0}
+.detail-gallery-wrap .detail-gallery{position:relative;top:auto}
+
+/* Packet: use the full frame (the generic .detail-image img rule capped it at 400px) */
+.detail-gallery .detail-gallery-slide--pack{padding:0;position:relative}
+.detail-gallery .detail-gallery-slide--pack img{
+  position:absolute !important;inset:0 !important;
+  width:100% !important;height:100% !important;max-width:none !important;
+  object-fit:contain !important;transform:scale(1.04) !important;transform-origin:center !important;
+}
+
+/* Cooked rice: fill the frame and zoom to the rice using each product's focal point */
+.detail-gallery .detail-gallery-slide--food{padding:0 !important;overflow:hidden}
+.detail-gallery .detail-gallery-slide--food img{
+  width:100% !important;height:100% !important;max-width:none !important;max-height:none !important;
+  object-fit:cover !important;
+  object-position:var(--fx,50%) var(--fy,50%) !important;
+  transform:scale(var(--zoom,1.2)) !important;
+  transform-origin:var(--fx,50%) var(--fy,50%) !important;
+  filter:none !important;
+  transition:transform 1.2s cubic-bezier(.2,.7,.2,1);
+}
+
+/* Softer, always-readable arrows that sit on photos */
+.detail-gallery .gallery-arrow{
+  background:color-mix(in srgb,var(--ivory) 82%,transparent);
+  border-color:color-mix(in srgb,var(--charcoal) 10%,transparent);
+  box-shadow:0 4px 14px color-mix(in srgb,var(--charcoal) 14%,transparent);
+  opacity:.9;
+}
+.detail-gallery .gallery-arrow:hover{background:var(--ivory);opacity:1}
+
+/* Dots */
+.detail-gallery-dots{
+  position:absolute;z-index:6;left:50%;bottom:14px;transform:translateX(-50%);
+  display:flex;gap:8px;padding:7px 11px;border-radius:999px;
+  background:color-mix(in srgb,var(--ivory) 80%,transparent);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+.detail-gallery-dots button{
+  width:8px;height:8px;padding:0;border:0;border-radius:999px;cursor:pointer;
+  background:color-mix(in srgb,var(--forest) 28%,transparent);
+  transition:width .25s ease,background .25s ease;
+}
+.detail-gallery-dots button.active{width:22px;background:var(--forest)}
+
+/* Disclaimer */
+.detail-gallery-caption{
+  margin:12px 4px 0;font-size:.78rem;line-height:1.5;text-align:center;
+  color:color-mix(in srgb,var(--charcoal) 62%,transparent);
+}
+
+@media(max-width:900px){
+  .detail-gallery-wrap{position:static}
+}
+@media(prefers-reduced-motion:reduce){
+  .detail-gallery-track{scroll-behavior:auto}
+  .detail-gallery .detail-gallery-slide--food img{transition:none}
+}
+
+/* ---------- Interlude photo (Cook rice, the Tahar way) ---------- */
+.interlude-photo{position:relative;overflow:hidden;width:100%;min-height:clamp(640px,52vw,820px);background:var(--beige)}
+.interlude-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 52%;display:block}
+@media(max-width:900px){
+  .interlude-photo{min-height:0;aspect-ratio:4/5}
+}
+
+
+/* ---------- Product card: pack <-> closeup toggle ---------- */
+.product-media{position:relative;overflow:hidden}
+.product-media-extra{position:absolute;inset:0;pointer-events:none}
+.product-closeup{
+  position:absolute;inset:0;z-index:3;display:block;overflow:hidden;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .45s var(--ease),visibility 0s linear .45s;
+}
+.product-closeup img{
+  display:block;width:100%;height:100%;object-fit:cover;
+  object-position:var(--fx,50%) var(--fy,50%);
+  transform:scale(calc(var(--zoom,1.2) * 1.06));transform-origin:var(--fx,50%) var(--fy,50%);
+  transition:transform 1.1s var(--ease);
+}
+.product-media.is-closeup .product-closeup{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .45s var(--ease),visibility 0s}
+.product-media.is-closeup .product-closeup img{transform:scale(var(--zoom,1.2))}
+.media-arrow{
+  position:absolute;z-index:5;top:50%;width:34px;height:34px;margin-top:-17px;padding:0;
+  display:grid;place-items:center;border-radius:50%;cursor:pointer;pointer-events:auto;
+  border:1px solid color-mix(in srgb,var(--charcoal) 10%,transparent);
+  background:color-mix(in srgb,var(--ivory) 86%,transparent);
+  box-shadow:0 4px 14px color-mix(in srgb,var(--charcoal) 16%,transparent);
+  transition:background .25s,transform .25s var(--ease);
+}
+.media-arrow svg{width:16px;height:16px;fill:none;stroke:var(--forest);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.media-arrow:hover{background:var(--ivory);transform:scale(1.08)}
+.media-arrow:focus-visible{outline:2px solid var(--forest);outline-offset:2px}
+.media-next{right:12px}
+.media-prev{left:12px}
+@media(prefers-reduced-motion:reduce){.product-closeup,.product-closeup img{transition:none}}
+
+/* =========================================================
+   TAHAR FINAL PRESENTATION REFINEMENTS
+   ========================================================= */
+
+/* Hero headline: give the opening statement a little more air from the top. */
+.hero h1 {
+  margin-top: clamp(65px, 8vw, 110px);
+}
+
+/* Hero statistics: preserve both divider lines, centre each statistic in its own column. */
+.hero-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  width: 100%;
+  max-width: 560px;
+}
+
+.hero-fact,
+.hero-fact + .hero-fact {
+  min-width: 0;
+  padding: 20px 16px 0;
+  text-align: center;
+}
+
+.hero-fact + .hero-fact {
+  border-left: 1px solid var(--on-dark-line);
+}
+
+.hero-fact strong {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.hero-fact > span {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+/* FAQ heading: eyebrow, title and supporting sentence share one clean left edge. */
+.faq-heading {
+  width: 100%;
+  max-width: 760px;
+  margin-left: 0;
+  margin-right: auto;
+  text-align: left;
+}
+
+.faq-heading > .eyebrow,
+.faq-heading > h2,
+.faq-heading > .faq-intro {
+  display: block;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  text-align: left;
+}
+
+.faq-heading > .faq-intro {
+  max-width: 48ch;
+}
+
+/* Closing CTA: centre the heading and button vertically within the whole section. */
+.closing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: clamp(390px, 34vw, 500px);
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.closing h2 {
+  margin: 0 0 32px;
+}
+
+.closing > .button {
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .hero h1 {
+    margin-top: 30px;
+  }
+
+  .closing {
+    min-height: 340px;
+    padding: 58px 20px;
+  }
+}
+
+@media (max-width: 620px) {
+  .hero-fact,
+  .hero-fact + .hero-fact {
+    padding: 18px 8px 0;
+  }
+
+  .hero-fact strong {
+    font-size: clamp(24px, 7vw, 30px);
+  }
+
+  .hero-fact .hero-count-note {
+    margin-left: 6px;
+    font-size: 11px;
+  }
+
+  .hero-fact > span {
+    font-size: 10px;
+    letter-spacing: .075em;
+  }
+
+  .faq-heading {
+    margin-bottom: 34px;
+  }
+
+  .faq-heading h2 {
+    line-height: 1.04;
+  }
+
+  .faq-heading > .faq-intro {
+    max-width: 100%;
+    line-height: 1.7;
+  }
+
+  .closing {
+    min-height: 320px;
+    padding: 52px 18px;
+  }
+
+  .closing h2 {
+    margin-bottom: 28px;
+  }
+}
+/* Perfect alignment for the FAQ introduction */
+.faq-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+}
+
+.faq-heading .eyebrow,
+.faq-heading h2,
+.faq-heading .faq-intro {
+    width: 100%;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    text-align: left !important;
+}
+
+.faq-heading .faq-intro {
+    max-width: 650px;
+}
+/* Centre the entire Tahar Collection heading vertically */
+/* Move the entire Tahar Collection content upwards */
+.section-head {
+    transform: translateY(-45px) !important;
+}
+
+@media (max-width: 900px) {
+    .section-head {
+        transform: translateY(-25px) !important;
+    }
+}
+
+/* Align the main heading with the right-side description */
+.shop-intro > :first-child {
+    transform: translateY(-24px);
+}
+
+/* Reset on mobile */
+@media (max-width: 900px) {
+    .shop-intro > :first-child {
+        transform: none;
+    }
+}
+
+
+/* ---------- Product cards: closeup fades in on hover (arrows remain only for touch screens) ---------- */
+@media (hover:hover) and (pointer:fine){
+  .media-arrow{display:none !important}
+  .product-closeup{transition:opacity .7s cubic-bezier(.22,.61,.36,1),visibility 0s linear .7s}
+  .product-closeup img{transform:scale(calc(var(--zoom,1.2) * 1.08));transition:transform 1.4s cubic-bezier(.22,.61,.36,1)}
+  .product-media:hover .product-closeup{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .7s cubic-bezier(.22,.61,.36,1),visibility 0s}
+  .product-media:hover .product-closeup img{transform:scale(var(--zoom,1.2))}
+}
+
+/* Move ONLY the hero heading down */
+.hero .hero-copy > h1.display {
+    position: relative !important;
+    top: 28px !important;
+}
+/* Move only the hero heading down on mobile */
+@media (max-width: 900px) {
+    .hero .hero-copy > h1.display {
+        position: relative !important;
+        top: 28px !important;
+    }
+}
+
+/* MOBILE HERO — MOVE CONTENT UP */
+@media (max-width: 900px) {
+    .hero .hero-copy {
+        position: relative !important;
+        top: 0 !important;
+        transform: translateY(-75px) !important;
+    }
+
+    /* Remove the separate heading offset */
+    .hero .hero-copy > h1.display {
+        top: 0 !important;
+    }
+}
+@media (max-width: 900px) {
+    .hero .hero-copy > h1.display {
+        position: relative !important;
+        top: 18px !important;
+    }
+}
+
+/* Tahar product sorting dropdown */
+.sort-select {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    padding-right: 48px !important;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23292923' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+
+    background-repeat: no-repeat !important;
+    background-position: right 17px center !important;
+    background-size: 13px !important;
 }

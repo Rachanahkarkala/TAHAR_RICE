@@ -108,14 +108,15 @@ function createTaharStore() {
     },
 
     get featuredProducts() {
-      return this.products.filter(function (product) {
-        return [
-          "premium",
-          "traditional",
-          "everyday",
-          "moti-mogra"
-        ].includes(product.id);
-      });
+      var featuredOrder = [
+        "traditional",
+        "premium",
+        "rozanna",
+        "everyday"
+      ];
+      return featuredOrder
+        .map((id) => this.products.find((product) => product.id === id))
+        .filter(Boolean);
     },
 
 
@@ -887,6 +888,30 @@ function productPage() {
     selectedSize: "",
     qty: 1,
 
+    // Product image gallery state.
+    galleryIndex: 0,
+
+    scrollGalleryTo(index) {
+      var track = this.$refs.galleryTrack;
+      if (!track) return;
+      var total = this.product?.galleryImage ? 2 : 1;
+      this.galleryIndex = (index + total) % total;
+      track.scrollTo({
+        left: track.clientWidth * this.galleryIndex,
+        behavior: "smooth"
+      });
+    },
+
+    manualGallery(direction) {
+      this.scrollGalleryTo(this.galleryIndex + direction);
+    },
+
+    updateGalleryIndex(event) {
+      var track = event?.target;
+      if (!track || !track.clientWidth) return;
+      this.galleryIndex = Math.round(track.scrollLeft / track.clientWidth);
+    },
+
 
     get related() {
       return this.products.filter((product) => {
@@ -920,6 +945,7 @@ function productPage() {
         window.location.search
       ).get("id");
 
+      this.galleryIndex = 0;
       this.product = this.findProduct(id);
 
       var firstAvailableSize = this.product?.sizes.find(function (size) {

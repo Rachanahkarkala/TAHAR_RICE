@@ -32,9 +32,47 @@
 <main class="container detail-wrap">
   <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/shop.html">Our Rice</a> / <span x-text="product?.name||'Rice'"></span></nav>
   <div class="detail-grid">
-    <div class="detail-image">
-      <template x-if="product?.image"><img :src="product.image" :alt="product.name"></template>
-      <template x-if="!product?.image"><div class="no-image">Rozanna<small>Product image coming soon</small></div></template>
+    <div class="detail-gallery-wrap">
+    <div class="detail-image detail-gallery"
+         @keydown.left.prevent="manualGallery(-1)"
+         @keydown.right.prevent="manualGallery(1)"
+         tabindex="0"
+         role="region"
+         aria-label="Product image gallery. Use the left and right arrows or swipe to change images.">
+      <div class="detail-gallery-track"
+           x-ref="galleryTrack"
+           @scroll.passive="updateGalleryIndex($event)">
+        <div class="detail-gallery-slide detail-gallery-slide--pack">
+          <template x-if="product?.image"><img :src="product.image" :alt="product.name + ' packaging'" fetchpriority="high"></template>
+          <template x-if="!product?.image"><div class="no-image">Product image<small>Coming soon</small></div></template>
+        </div>
+        <template x-if="product?.galleryImage">
+          <div class="detail-gallery-slide detail-gallery-slide--food">
+            <img :src="product.galleryImage" :alt="product.name + ' cooked rice serving'" loading="eager"
+                 :style="'--fx:'+(product.galleryFocus?.x ?? 50)+'%;--fy:'+(product.galleryFocus?.y ?? 50)+'%;--zoom:'+(product.galleryFocus?.zoom ?? 1.2)">
+          </div>
+        </template>
+      </div>
+
+      <template x-if="product?.galleryImage">
+        <div class="detail-gallery-arrows">
+          <button type="button" class="gallery-arrow gallery-prev" aria-label="Previous image" @click.stop="manualGallery(-1)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7 7-7-7 7-7"/></svg>
+          </button>
+          <button type="button" class="gallery-arrow gallery-next" aria-label="Next image" @click.stop="manualGallery(1)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+          </button>
+        </div>
+      </template>
+
+      <template x-if="product?.galleryImage">
+        <div class="detail-gallery-dots" role="tablist" aria-label="Choose image">
+          <button type="button" role="tab" aria-label="Pack image" :aria-selected="galleryIndex===0" :class="{active:galleryIndex===0}" @click.stop="scrollGalleryTo(0)"></button>
+          <button type="button" role="tab" aria-label="Cooked rice image" :aria-selected="galleryIndex===1" :class="{active:galleryIndex===1}" @click.stop="scrollGalleryTo(1)"></button>
+        </div>
+      </template>
+    </div>
+    <p class="detail-gallery-caption">Images are for visual representation only. Actual packaging, grain appearance and serving may vary slightly.</p>
     </div>
     <section class="detail-info">
       <div class="eyebrow">Tahar · Your culinary companion</div>
@@ -46,7 +84,7 @@
       <div class="size-options" role="group" aria-label="Pack size"><template x-for="s in (product?.sizes||[])" :key="s.size"><button type="button" class="size-option" :class="{active:selectedSize===s.size,'is-unavailable':shopifyReady && s.availableForSale===false}" :disabled="!shopifyReady || s.availableForSale!==true" :aria-disabled="s.availableForSale!==true" :aria-pressed="selectedSize===s.size" :title="s.availableForSale===false ? 'Currently unavailable' : ''" @click="if(s.availableForSale===true) selectedSize=s.size"><span x-text="s.size+' · '+money(s.price)"></span><small class="size-status" x-show="shopifyReady && s.availableForSale===false">Out of stock</small></button></template></div>
       <span class="detail-label">Quantity</span>
       <div class="detail-buy"><div class="detail-qty"><button @click="qty=Math.max(1,qty-1)" aria-label="Decrease quantity">−</button><span x-text="qty"></span><button @click="qty=Math.min(20,qty+1)" aria-label="Increase quantity">+</button></div><button class="button" :class="{'is-unavailable':shopifyReady && selected && selected.availableForSale===false}" :disabled="!shopifyReady || !selected || selected.availableForSale!==true || cartBusy" :aria-disabled="!selected || selected.availableForSale!==true" @click="addDetail()"><span x-text="!shopifyReady ? 'Loading availability…' : selected && selected.availableForSale===true ? 'Add to basket' : 'Out of stock'"></span><svg class="arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
-      <div class="detail-note">Product information and pack sizes shown here are based on the catalogue supplied for this prototype. Delivery, inventory and checkout will be connected through Shopify in the next phase.</div>
+      <div class="detail-note"></div>
     </section>
   </div>
 </main>
@@ -83,10 +121,10 @@
       <a class="footer-social-link" href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" class="icon-fill"/></svg>
       </a>
-      <a class="footer-social-link" href="mailto:rachanahkarkala@gmail.com" aria-label="Email">
+      <a class="footer-social-link" href="mailto:customercare@jpsglobalrice.com" aria-label="Email">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3.5 6 8.5 7 8.5-7"/></svg>
       </a>
-      <a class="footer-social-link" href="tel:7483114101" aria-label="Call 7483114101">
+      <a class="footer-social-link" href="tel:9992910964" aria-label="Call 9992910964">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5 4.5 5c-.8.5-.9 1.6-.6 2.5 2 5.9 6.7 10.6 12.6 12.6.9.3 2 .2 2.5-.6l1.5-2.5-4.2-3-2 2a14.2 14.2 0 0 1-6.4-6.4l2-2-2.9-4.1Z"/></svg>
       </a>
     </div></div>
@@ -123,5 +161,6 @@
   </aside>
 </div>
 <div class="toast" :class="{show:toast}" x-text="toast" role="status" aria-live="polite"></div>
+
 </body>
 </html>
