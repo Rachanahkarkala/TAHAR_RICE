@@ -1314,3 +1314,17 @@ img{display:block;max-width:100%}
         top: 28px !important;
     }
 }
+
+/* MOBILE HERO — MOVE CONTENT UP */
+@media (max-width: 900px) {
+    .hero .hero-copy {
+        position: relative !important;
+        top: 0 !important;
+        transform: translateY(-75px) !important;
+    }
+
+    /* Remove the separate heading offset */
+    .hero .hero-copy > h1.display {
+        top: 0 !important;
+    }
+}
