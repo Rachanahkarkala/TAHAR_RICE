@@ -84,7 +84,7 @@
       <div class="size-options" role="group" aria-label="Pack size"><template x-for="s in (product?.sizes||[])" :key="s.size"><button type="button" class="size-option" :class="{active:selectedSize===s.size,'is-unavailable':shopifyReady && s.availableForSale===false}" :disabled="!shopifyReady || s.availableForSale!==true" :aria-disabled="s.availableForSale!==true" :aria-pressed="selectedSize===s.size" :title="s.availableForSale===false ? 'Currently unavailable' : ''" @click="if(s.availableForSale===true) selectedSize=s.size"><span x-text="s.size+' · '+money(s.price)"></span><small class="size-status" x-show="shopifyReady && s.availableForSale===false">Out of stock</small></button></template></div>
       <span class="detail-label">Quantity</span>
       <div class="detail-buy"><div class="detail-qty"><button @click="qty=Math.max(1,qty-1)" aria-label="Decrease quantity">−</button><span x-text="qty"></span><button @click="qty=Math.min(20,qty+1)" aria-label="Increase quantity">+</button></div><button class="button" :class="{'is-unavailable':shopifyReady && selected && selected.availableForSale===false}" :disabled="!shopifyReady || !selected || selected.availableForSale!==true || cartBusy" :aria-disabled="!selected || selected.availableForSale!==true" @click="addDetail()"><span x-text="!shopifyReady ? 'Loading availability…' : selected && selected.availableForSale===true ? 'Add to basket' : 'Out of stock'"></span><svg class="arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
-      <div class="detail-note">Product information and pack sizes shown here are based on the catalogue supplied for this prototype. Delivery, inventory and checkout will be connected through Shopify in the next phase.</div>
+      <div class="detail-note"></div>
     </section>
   </div>
 </main>
@@ -161,5 +161,6 @@
   </aside>
 </div>
 <div class="toast" :class="{show:toast}" x-text="toast" role="status" aria-live="polite"></div>
+
 </body>
 </html>

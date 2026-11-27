@@ -117,8 +117,12 @@ img{display:block;max-width:100%}
   radial-gradient(40% 50% at 8% 100%,color-mix(in srgb,var(--forest-deep) 80%,transparent),transparent 70%)}
 .hero-grain{position:absolute;inset:0;z-index:-1;opacity:.5;pointer-events:none;background-image:var(--grain)}
 .hero-inner{width:var(--page);margin:auto;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:clamp(32px,6vw,96px);align-items:stretch;padding:clamp(44px,4.5vw,68px) 0 clamp(44px,4.5vw,68px)}
-.hero h1{font-size:clamp(54px,6.4vw,96px);margin:20px 0 22px;letter-spacing:-.03em;line-height:.96}
-.hero-copy p.lead{color:var(--on-dark-soft);font-size:18px;max-width:46ch}
+.hero h1 {
+    font-size: clamp(54px, 6.4vw, 96px);
+    margin: 95px 0 22px !important;
+    letter-spacing: -.03em;
+    line-height: .96;
+}.hero-copy p.lead{color:var(--on-dark-soft);font-size:18px;max-width:46ch}
 .hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:20px 30px;margin-top:30px}
 .hero-facts{display:flex;flex-wrap:wrap;gap:0;margin-top:clamp(28px,3.4vw,44px);border-top:1px solid var(--on-dark-line);max-width:560px}
 .hero-fact{flex:1 1 150px;padding:20px 24px 0 0}
@@ -436,8 +440,10 @@ img{display:block;max-width:100%}
   :root{--page:calc(100% - 36px)}
   .topline{font-size:10px;letter-spacing:.1em}
   .topline i{margin:0 8px}
-  .hero h1{font-size:clamp(50px,15vw,68px)}
-  .hero-fact{flex:1 1 0;padding:16px 12px 0 0}
+.hero h1 {
+    font-size: clamp(50px, 15vw, 68px);
+    margin-top: 105px !important;
+}  .hero-fact{flex:1 1 0;padding:16px 12px 0 0}
   .hero-fact+.hero-fact{padding-left:16px}
   .hero-fact strong{font-size:28px}
   .hero-fact span{font-size:11px}
@@ -1283,5 +1289,28 @@ img{display:block;max-width:100%}
 @media (max-width: 900px) {
     .shop-intro > :first-child {
         transform: none;
+    }
+}
+
+
+/* ---------- Product cards: closeup fades in on hover (arrows remain only for touch screens) ---------- */
+@media (hover:hover) and (pointer:fine){
+  .media-arrow{display:none !important}
+  .product-closeup{transition:opacity .7s cubic-bezier(.22,.61,.36,1),visibility 0s linear .7s}
+  .product-closeup img{transform:scale(calc(var(--zoom,1.2) * 1.08));transition:transform 1.4s cubic-bezier(.22,.61,.36,1)}
+  .product-media:hover .product-closeup{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .7s cubic-bezier(.22,.61,.36,1),visibility 0s}
+  .product-media:hover .product-closeup img{transform:scale(var(--zoom,1.2))}
+}
+
+/* Move ONLY the hero heading down */
+.hero .hero-copy > h1.display {
+    position: relative !important;
+    top: 28px !important;
+}
+/* Move only the hero heading down on mobile */
+@media (max-width: 900px) {
+    .hero .hero-copy > h1.display {
+        position: relative !important;
+        top: 28px !important;
     }
 }
